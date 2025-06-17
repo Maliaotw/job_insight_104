@@ -53,3 +53,6 @@ run-scheduler:
 # Development mode (with code changes reflected)
 dev:
 	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+stage:
+   echo 1
