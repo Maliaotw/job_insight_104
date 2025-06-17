@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 排程器服務
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-scheduler
+    command: python bin/run_scheduler.py
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+
+  # 爬蟲服務
+  crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-crawler
+    command: python bin/run_crawler_v2.py
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+
+  # 分析應用服務
+  analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-analysis
+    command: python bin/run_analysis_app.py
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+    depends_on:
+      - crawler
+

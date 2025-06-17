@@ -1,0 +1,68 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Database files
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.sqlite3
+
+# Data files
+data/raw_data/
+data/*.duckdb
+custom/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.envrc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Local configuration
+instance/
+.webassets-cache
+
+# Dependency management
+pip-log.txt
+pip-delete-this-directory.txt
+uv.lock
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+bak
+
+/src/job_insight_104.egg-info/

@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: job_insight_104
+Version: 0.1.0
+Summary: 104 職缺市場洞察平台 (104 Job Data Insight Platform)
+License: MIT
+Requires-Python: <3.12,>=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: httpx>=0.23.0
+Requires-Dist: playwright>=1.30.0
+Requires-Dist: apscheduler>=3.9.1
+Requires-Dist: pandas>=1.5.0
+Requires-Dist: numpy>=1.23.0
+Requires-Dist: duckdb>=0.7.0
+Requires-Dist: pymongo>=4.3.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: streamlit>=1.18.0
+Requires-Dist: plotly>=5.13.0
+Requires-Dist: matplotlib>=3.6.0
+Requires-Dist: seaborn>=0.12.0
+Requires-Dist: python-dotenv>=0.21.0
+Requires-Dist: tqdm>=4.64.0
+Requires-Dist: notebook>=7.3.3
+Requires-Dist: fire>=0.7.0
+Requires-Dist: boto3>=1.37.38
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
