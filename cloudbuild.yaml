@@ -24,37 +24,12 @@ steps:
     args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest']
     id: 'push-image'
 
-  # 部署到 Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: [
-      'run', 'deploy', '${_SERVICE_NAME}',
-      '--image', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest',
-      '--region', '${_REGION}',
-      '--platform', 'managed',
-      '--port', '8501',
-      '--memory', '${_MEMORY}',
-      '--cpu', '${_CPU}',
-      '--max-instances', '${_MAX_INSTANCES}',
-      '--min-instances', '${_MIN_INSTANCES}',
-      '--timeout', '3600',
-      '--concurrency', '80',
-      '--set-env-vars', '${_VAR}',
-      '--allow-unauthenticated',
-      '--tag', '${_ENVIRONMENT}'
-    ]
-    id: 'deploy'
-
-
 
 substitutions:
-  _SERVICE_NAME: 'default-service'
+  _SERVICE_NAME: 'job-insight-analysis'
   _REGION: 'us-east1'
   _ENVIRONMENT: 'staging'
-  _MEMORY: '2Gi'
-  _CPU: '1'
-  _MAX_INSTANCES: '2'
-  _MIN_INSTANCES: '1'
-  _VAR: ''
+
 
 
 options:
