@@ -14,9 +14,4 @@ from apps.visualization.components.footer import create_footer
 
 from apps.visualization.components.filter_info import display_filter_info
 
-__all__ = [
-    'create_sidebar',
-    'create_header',
-    'create_footer',
-    'display_filter_info'
-]
+__all__ = ["create_sidebar", "create_header", "create_footer", "display_filter_info"]

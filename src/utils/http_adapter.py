@@ -25,7 +25,8 @@ from functools import wraps
 from config.settings import logger
 
 # 定義響應類型
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class HttpAdapter:
     """
@@ -48,12 +49,12 @@ class HttpAdapter:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
     ]
 
     def __init__(
-        self, 
-        base_url: str = "", 
+        self,
+        base_url: str = "",
         headers: Dict[str, str] = None,
         timeout: Union[float, httpx.Timeout] = 30.0,
         max_retries: int = 3,
@@ -66,7 +67,7 @@ class HttpAdapter:
         follow_redirects: bool = True,
         proxy: str = None,
         cookies: Dict[str, str] = None,
-        logger_instance: logging.Logger = None
+        logger_instance: logging.Logger = None,
     ):
         """
         初始化 HTTP 適配器
@@ -92,7 +93,9 @@ class HttpAdapter:
 
         # 設置基本屬性
         self.base_url = base_url
-        self.timeout = timeout if isinstance(timeout, httpx.Timeout) else httpx.Timeout(timeout)
+        self.timeout = (
+            timeout if isinstance(timeout, httpx.Timeout) else httpx.Timeout(timeout)
+        )
         self.max_retries = max_retries
         self.min_retry_delay = min_retry_delay
         self.max_retry_delay = max_retry_delay
@@ -109,7 +112,7 @@ class HttpAdapter:
         # 設置默認請求頭
         self.headers = {
             "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
         }
         if headers:
             self.headers.update(headers)
@@ -153,7 +156,7 @@ class HttpAdapter:
                 http2=self.http2,
                 follow_redirects=self.follow_redirects,
                 proxy=self.proxy,
-                cookies=self.cookies
+                cookies=self.cookies,
             )
         return self._sync_client
 
@@ -164,7 +167,7 @@ class HttpAdapter:
         if self._sync_client and not self._sync_client.is_closed:
             self._sync_client.close()
 
-    def __enter__(self) -> 'HttpAdapter':
+    def __enter__(self) -> "HttpAdapter":
         """
         支持 with 語句的上下文管理
         """
@@ -187,21 +190,23 @@ class HttpAdapter:
             str: 完整的 URL
         """
         # 如果 URL 已經是絕對 URL，直接返回
-        if url.startswith(('http://', 'https://')):
+        if url.startswith(("http://", "https://")):
             return url
 
         # 否則，將其與 base_url 組合
         if self.base_url:
-            if self.base_url.endswith('/') and url.startswith('/'):
+            if self.base_url.endswith("/") and url.startswith("/"):
                 return f"{self.base_url}{url[1:]}"
-            elif not self.base_url.endswith('/') and not url.startswith('/'):
+            elif not self.base_url.endswith("/") and not url.startswith("/"):
                 return f"{self.base_url}/{url}"
             else:
                 return f"{self.base_url}{url}"
         else:
             return url
 
-    def _handle_response(self, response: httpx.Response, error_context: str = "請求") -> Dict:
+    def _handle_response(
+        self, response: httpx.Response, error_context: str = "請求"
+    ) -> Dict:
         """
         處理 HTTP 響應
 
@@ -214,35 +219,35 @@ class HttpAdapter:
         """
         try:
             # 檢查是否為 JSON 響應
-            content_type = response.headers.get('content-type', '')
-            if 'application/json' in content_type:
+            content_type = response.headers.get("content-type", "")
+            if "application/json" in content_type:
                 return response.json()
             else:
                 # 非 JSON 響應，返回文本內容和狀態碼
                 return {
                     "status_code": response.status_code,
                     "content": response.text,
-                    "headers": dict(response.headers)
+                    "headers": dict(response.headers),
                 }
         except Exception as e:
             self.logger.error(f"處理{error_context}響應時出錯: {e}")
             return {
                 "error": f"處理響應錯誤: {str(e)}",
                 "status_code": response.status_code,
-                "content": response.text[:1000]  # 只返回前 1000 個字符，避免過大
+                "content": response.text[:1000],  # 只返回前 1000 個字符，避免過大
             }
 
     def request(
-        self, 
-        method: str, 
-        url: str, 
-        params: Dict = None, 
+        self,
+        method: str,
+        url: str,
+        params: Dict = None,
         data: Dict = None,
         json: Dict = None,
         headers: Dict = None,
         cookies: Dict = None,
         timeout: Union[float, httpx.Timeout] = None,
-        error_context: str = "請求"
+        error_context: str = "請求",
     ) -> Dict:
         """
         發送同步 HTTP 請求
@@ -285,13 +290,14 @@ class HttpAdapter:
                 # 添加重試延遲
                 if retries > 0:
                     delay = random.uniform(
-                        self.min_retry_delay * retries, 
-                        self.max_retry_delay * retries
+                        self.min_retry_delay * retries, self.max_retry_delay * retries
                     )
                     self.logger.info(f"重試前等待 {delay:.2f} 秒...")
                     time.sleep(delay)
 
-                self.logger.debug(f"發送 {method} 請求至 {full_url} (嘗試 {retries + 1}/{self.max_retries})")
+                self.logger.debug(
+                    f"發送 {method} 請求至 {full_url} (嘗試 {retries + 1}/{self.max_retries})"
+                )
 
                 # 發送請求
                 response = self.sync_client.request(
@@ -302,7 +308,7 @@ class HttpAdapter:
                     json=json,
                     headers=merged_headers,
                     cookies=cookies,
-                    timeout=request_timeout
+                    timeout=request_timeout,
                 )
 
                 # 檢查是否被封鎖 (403 Forbidden)
@@ -317,8 +323,10 @@ class HttpAdapter:
                 # 檢查是否達到請求限制 (429 Too Many Requests)
                 if response.status_code == 429:
                     # 從響應頭獲取需要等待的時間
-                    wait_time = int(response.headers.get('Retry-After', 60))
-                    self.logger.warning(f"請求頻率過高 (429 Too Many Requests)，需要等待 {wait_time} 秒")
+                    wait_time = int(response.headers.get("Retry-After", 60))
+                    self.logger.warning(
+                        f"請求頻率過高 (429 Too Many Requests)，需要等待 {wait_time} 秒"
+                    )
 
                     # 等待指定時間後重試
                     time.sleep(wait_time)
@@ -340,7 +348,7 @@ class HttpAdapter:
                     self.retry_count += 1
                     self.logger.info(f"準備重試 ({retries}/{self.max_retries})...")
                 else:
-                    raise Exception('請求錯誤')
+                    raise Exception("請求錯誤")
 
             except httpx.RequestError as e:
                 self.logger.error(f"{error_context}時發生請求錯誤: {e}")
@@ -349,7 +357,7 @@ class HttpAdapter:
                     self.retry_count += 1
                     self.logger.info(f"準備重試 ({retries}/{self.max_retries})...")
                 else:
-                    raise Exception('請求錯誤')
+                    raise Exception("請求錯誤")
 
             except Exception as e:
                 self.logger.error(f"{error_context}時發生錯誤: {e}")
@@ -418,16 +426,16 @@ class HttpAdapter:
         return self.request("DELETE", url, **kwargs)
 
     async def async_request(
-        self, 
-        method: str, 
-        url: str, 
-        params: Dict = None, 
+        self,
+        method: str,
+        url: str,
+        params: Dict = None,
         data: Dict = None,
         json: Dict = None,
         headers: Dict = None,
         cookies: Dict = None,
         timeout: Union[float, httpx.Timeout] = None,
-        error_context: str = "請求"
+        error_context: str = "請求",
     ) -> Dict:
         """
         發送非同步 HTTP 請求
@@ -470,13 +478,14 @@ class HttpAdapter:
                 # 添加重試延遲
                 if retries > 0:
                     delay = random.uniform(
-                        self.min_retry_delay * retries, 
-                        self.max_retry_delay * retries
+                        self.min_retry_delay * retries, self.max_retry_delay * retries
                     )
                     self.logger.info(f"重試前等待 {delay:.2f} 秒...")
                     await asyncio.sleep(delay)
 
-                self.logger.debug(f"發送非同步 {method} 請求至 {full_url} (嘗試 {retries + 1}/{self.max_retries})")
+                self.logger.debug(
+                    f"發送非同步 {method} 請求至 {full_url} (嘗試 {retries + 1}/{self.max_retries})"
+                )
 
                 # 創建非同步客戶端並發送請求
                 async with httpx.AsyncClient(
@@ -487,19 +496,17 @@ class HttpAdapter:
                     http2=self.http2,
                     follow_redirects=self.follow_redirects,
                     proxy=self.proxy,
-                    cookies=cookies or self.cookies
+                    cookies=cookies or self.cookies,
                 ) as client:
                     response = await client.request(
-                        method=method,
-                        url=full_url,
-                        params=params,
-                        data=data,
-                        json=json
+                        method=method, url=full_url, params=params, data=data, json=json
                     )
 
                     # 檢查是否被封鎖 (403 Forbidden)
                     if response.status_code == 403:
-                        self.logger.warning(f"請求被拒絕 (403 Forbidden)，可能被網站封鎖")
+                        self.logger.warning(
+                            f"請求被拒絕 (403 Forbidden)，可能被網站封鎖"
+                        )
                         if self.rotate_user_agent:
                             self.update_user_agent()
                         retries += 1
@@ -509,8 +516,10 @@ class HttpAdapter:
                     # 檢查是否達到請求限制 (429 Too Many Requests)
                     if response.status_code == 429:
                         # 從響應頭獲取需要等待的時間
-                        wait_time = int(response.headers.get('Retry-After', 60))
-                        self.logger.warning(f"請求頻率過高 (429 Too Many Requests)，需要等待 {wait_time} 秒")
+                        wait_time = int(response.headers.get("Retry-After", 60))
+                        self.logger.warning(
+                            f"請求頻率過高 (429 Too Many Requests)，需要等待 {wait_time} 秒"
+                        )
 
                         # 等待指定時間後重試
                         await asyncio.sleep(wait_time)
@@ -624,8 +633,8 @@ class AsyncHttpAdapter:
     """
 
     def __init__(
-        self, 
-        base_url: str = "", 
+        self,
+        base_url: str = "",
         headers: Dict[str, str] = None,
         timeout: Union[float, httpx.Timeout] = 30.0,
         max_retries: int = 3,
@@ -638,7 +647,7 @@ class AsyncHttpAdapter:
         follow_redirects: bool = True,
         proxy: str = None,
         cookies: Dict[str, str] = None,
-        logger_instance: logging.Logger = None
+        logger_instance: logging.Logger = None,
     ):
         """
         初始化非同步 HTTP 適配器
@@ -660,7 +669,7 @@ class AsyncHttpAdapter:
             follow_redirects=follow_redirects,
             proxy=proxy,
             cookies=cookies,
-            logger_instance=logger_instance
+            logger_instance=logger_instance,
         )
 
     @property
@@ -714,10 +723,7 @@ async def example_usage():
     展示如何使用 HttpAdapter 和 AsyncHttpAdapter
     """
     # 同步請求範例
-    sync_adapter = HttpAdapter(
-        base_url="https://api.example.com",
-        max_retries=3
-    )
+    sync_adapter = HttpAdapter(base_url="https://api.example.com", max_retries=3)
 
     # 使用 with 語句自動關閉客戶端
     with sync_adapter as adapter:
@@ -730,10 +736,7 @@ async def example_usage():
         print(f"同步 POST 響應: {response}")
 
     # 非同步請求範例
-    async_adapter = AsyncHttpAdapter(
-        base_url="https://api.example.com",
-        max_retries=3
-    )
+    async_adapter = AsyncHttpAdapter(base_url="https://api.example.com", max_retries=3)
 
     # 發送非同步 GET 請求
     response = await async_adapter.get("/users", params={"page": 1})

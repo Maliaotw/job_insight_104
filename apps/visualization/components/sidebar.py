@@ -30,9 +30,9 @@ def update_keywords(suggestion: str) -> None:
         st.session_state.search_keywords = suggestion
     else:
         # 否則，替換最後一個關鍵詞為建議
-        parts = current_keywords.split(',')
+        parts = current_keywords.split(",")
         parts[-1] = suggestion
-        st.session_state.search_keywords = ','.join(parts)
+        st.session_state.search_keywords = ",".join(parts)
 
 
 def create_keyword_filter(keywords_choices: List[str]) -> List[str]:
@@ -48,33 +48,40 @@ def create_keyword_filter(keywords_choices: List[str]) -> List[str]:
     st.sidebar.title("全局搜索")
 
     # 初始化session state以保存關鍵詞
-    if 'search_keywords' not in st.session_state:
-        st.session_state.search_keywords = ''
+    if "search_keywords" not in st.session_state:
+        st.session_state.search_keywords = ""
 
     # 使用text_input搭配自動補全功能，並從session state獲取值
     search_keywords = st.sidebar.text_input(
-        '關鍵詞 (可輸入多個，用逗號分隔)',
+        "關鍵詞 (可輸入多個，用逗號分隔)",
         value=st.session_state.search_keywords,
-        key='search_keywords_input',
-        help='留空表示搜尋全部關鍵詞，輸入時會自動提示可用的關鍵詞'
+        key="search_keywords_input",
+        help="留空表示搜尋全部關鍵詞，輸入時會自動提示可用的關鍵詞",
     )
 
     # 更新session state中的關鍵詞
     st.session_state.search_keywords = search_keywords
 
     # 顯示可用的關鍵詞作為提示
-    if search_keywords and not search_keywords.endswith(','):
+    if search_keywords and not search_keywords.endswith(","):
         # 獲取用戶當前正在輸入的關鍵詞（最後一個逗號後的文字）
-        current_input = search_keywords.split(',')[-1].strip().lower()
+        current_input = search_keywords.split(",")[-1].strip().lower()
 
         if current_input:
             # 過濾出符合當前輸入的關鍵詞建議
-            suggestions = [k for k in keywords_choices if k.lower().startswith(current_input)]
+            suggestions = [
+                k for k in keywords_choices if k.lower().startswith(current_input)
+            ]
 
             if suggestions:
                 st.sidebar.caption("建議的關鍵詞:")
                 for suggestion in suggestions[:5]:  # 限制顯示前5個建議
-                    if st.sidebar.button(suggestion, key=f"suggest_{suggestion}", on_click=update_keywords, args=(suggestion,)):
+                    if st.sidebar.button(
+                        suggestion,
+                        key=f"suggest_{suggestion}",
+                        on_click=update_keywords,
+                        args=(suggestion,),
+                    ):
                         pass  # 按鈕點擊時會調用update_keywords函數
 
     # 顯示所有可用的關鍵詞
@@ -85,7 +92,7 @@ def create_keyword_filter(keywords_choices: List[str]) -> List[str]:
     # 處理關鍵詞
     keywords = []
     if search_keywords:
-        keywords = [k.strip() for k in search_keywords.split(',') if k.strip()]
+        keywords = [k.strip() for k in search_keywords.split(",") if k.strip()]
 
     return keywords
 
@@ -109,17 +116,23 @@ def create_time_filter() -> Optional[int]:
     返回:
         Optional[int]: 用戶選擇的時間範圍（月），如果選擇全部時間則為None
     """
-    months_options = [("全部時間", None), ("最近1個月", 1), ("最近3個月", 3), ("最近6個月", 6), ("最近12個月", 12)]
+    months_options = [
+        ("全部時間", None),
+        ("最近1個月", 1),
+        ("最近3個月", 3),
+        ("最近6個月", 6),
+        ("最近12個月", 12),
+    ]
     selected_months = st.sidebar.selectbox(
-        "時間範圍", 
-        options=[label for label, _ in months_options],
-        index=0
+        "時間範圍", options=[label for label, _ in months_options], index=0
     )
     months = dict(months_options)[selected_months]
     return months
 
 
-def create_location_filter(cities: List[str], all_districts: Dict[str, List[str]]) -> tuple:
+def create_location_filter(
+    cities: List[str], all_districts: Dict[str, List[str]]
+) -> tuple:
     """
     創建位置過濾器元件。
 
@@ -131,14 +144,18 @@ def create_location_filter(cities: List[str], all_districts: Dict[str, List[str]
         tuple: (city, district) 用戶選擇的城市和地區
     """
     # 創建城市選擇下拉框
-    selected_city = st.sidebar.selectbox("選擇城市進行分析", ["全部城市"] + cities, key="sidebar_city")
+    selected_city = st.sidebar.selectbox(
+        "選擇城市進行分析", ["全部城市"] + cities, key="sidebar_city"
+    )
     logger.debug(f"用戶選擇的城市: {selected_city}")
 
     # 根據選擇的城市獲取對應的地區列表
     districts = all_districts.get(selected_city, [])
 
     # 創建地區選擇下拉框
-    selected_district = st.sidebar.selectbox("選擇地區進行分析", ["全部地區"] + districts, key="sidebar_district")
+    selected_district = st.sidebar.selectbox(
+        "選擇地區進行分析", ["全部地區"] + districts, key="sidebar_district"
+    )
     logger.debug(f"用戶選擇的地區: {selected_district}")
 
     # 根據選擇設置城市和地區變數
@@ -159,11 +176,11 @@ def create_page_navigation() -> str:
 
     # 定義頁面選項和對應的圖標
     page_options = [
-        "總覽 Dashboard", 
-        "每日職缺變化分析", 
-        "產業職缺分佈與趨勢", 
-        "招聘效率分析", 
-        "薪資與地區分析"
+        "總覽 Dashboard",
+        "每日職缺變化分析",
+        "產業職缺分佈與趨勢",
+        "招聘效率分析",
+        "薪資與地區分析",
     ]
 
     page_icons = {
@@ -171,7 +188,7 @@ def create_page_navigation() -> str:
         "每日職缺變化分析": "📈",
         "產業職缺分佈與趨勢": "🏢",
         "招聘效率分析": "⏱️",
-        "薪資與地區分析": "💰"
+        "薪資與地區分析": "💰",
     }
 
     # 使用帶有圖標的選項
@@ -179,9 +196,7 @@ def create_page_navigation() -> str:
 
     # 創建帶有圖標的頁面選擇器
     selected_page_with_icon = st.sidebar.radio(
-        "請選擇分析頁面",
-        page_display_options,
-        format_func=lambda x: x
+        "請選擇分析頁面", page_display_options, format_func=lambda x: x
     )
 
     # 提取頁面名稱（去除圖標）
@@ -193,7 +208,7 @@ def create_page_navigation() -> str:
         "每日職缺變化分析": "分析職缺數量的每日變化趨勢",
         "產業職缺分佈與趨勢": "探索不同產業的職缺分佈和發展趨勢",
         "招聘效率分析": "分析企業招聘流程的效率指標",
-        "薪資與地區分析": "比較不同地區和職位的薪資水平"
+        "薪資與地區分析": "比較不同地區和職位的薪資水平",
     }
 
     st.sidebar.info(page_descriptions[selected_page])
@@ -201,7 +216,13 @@ def create_page_navigation() -> str:
     return selected_page
 
 
-def display_filter_summary(keywords: List[str], city: Optional[str], district: Optional[str], months: Optional[int], limit: Union[str, int]) -> None:
+def display_filter_summary(
+    keywords: List[str],
+    city: Optional[str],
+    district: Optional[str],
+    months: Optional[int],
+    limit: Union[str, int],
+) -> None:
     """
     顯示過濾條件摘要。
 
@@ -242,17 +263,19 @@ def reset_filters():
     """
     重置所有過濾條件到默認值。
     """
-    if 'search_keywords' in st.session_state:
-        st.session_state.search_keywords = ''
-    if 'sidebar_city' in st.session_state:
+    if "search_keywords" in st.session_state:
+        st.session_state.search_keywords = ""
+    if "sidebar_city" in st.session_state:
         st.session_state.sidebar_city = "全部城市"
-    if 'sidebar_district' in st.session_state:
+    if "sidebar_district" in st.session_state:
         st.session_state.sidebar_district = "全部地區"
     # 重置其他過濾器的session state
     st.session_state.filter_reset = True
 
 
-def create_sidebar(keywords_choices: List[str], taiwan_city: Dict[str, List[str]]) -> Dict[str, Any]:
+def create_sidebar(
+    keywords_choices: List[str], taiwan_city: Dict[str, List[str]]
+) -> Dict[str, Any]:
     """
     創建應用程序側邊欄。
 
@@ -265,7 +288,7 @@ def create_sidebar(keywords_choices: List[str], taiwan_city: Dict[str, List[str]
     """
     try:
         # 初始化重置標誌
-        if 'filter_reset' not in st.session_state:
+        if "filter_reset" not in st.session_state:
             st.session_state.filter_reset = False
 
         # 創建過濾器標題和重置按鈕
@@ -295,9 +318,15 @@ def create_sidebar(keywords_choices: List[str], taiwan_city: Dict[str, List[str]
             all_districts[city] = sorted(districts)
 
         # 獲取所有地區（用於"全部城市"選項）
-        all_districts["全部城市"] = sorted(list({
-            district for districts in taiwan_city.values() for district in districts
-        }))
+        all_districts["全部城市"] = sorted(
+            list(
+                {
+                    district
+                    for districts in taiwan_city.values()
+                    for district in districts
+                }
+            )
+        )
 
         # 創建位置過濾器
         city, district = create_location_filter(cities, all_districts)
@@ -320,7 +349,7 @@ def create_sidebar(keywords_choices: List[str], taiwan_city: Dict[str, List[str]
             "district": district,
             "limit": limit,
             "months": months,
-            "page": page
+            "page": page,
         }
     except Exception as e:
         logger.error(f"創建側邊欄時發生錯誤: {str(e)}", exc_info=True)
@@ -333,5 +362,5 @@ def create_sidebar(keywords_choices: List[str], taiwan_city: Dict[str, List[str]
             "district": None,
             "limit": "無限制",
             "months": None,
-            "page": "總覽 Dashboard"
+            "page": "總覽 Dashboard",
         }

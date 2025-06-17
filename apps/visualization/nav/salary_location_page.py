@@ -13,13 +13,10 @@ from config.settings import logger
 
 # Constants
 DEFAULT_JOB_LIMIT = 10000
-REQUIRED_COLUMNS = {
-    'location': ['city', 'district'],
-    'salary': ['salaryDesc']
-}
+REQUIRED_COLUMNS = {"location": ["city", "district"], "salary": ["salaryDesc"]}
 ERROR_MESSAGES = {
-    'no_location_data': "職缺數據中沒有城市和地區信息",
-    'general_error': "無法分析薪資與地區，請確保數據格式正確。"
+    "no_location_data": "職缺數據中沒有城市和地區信息",
+    "general_error": "無法分析薪資與地區，請確保數據格式正確。",
 }
 
 
@@ -37,8 +34,14 @@ class SalaryLocationDataProcessor:
         """
         self.job_data_analyzer = job_data_analyzer
 
-    def load_job_data(self, keywords=None, city=None, district=None, 
-                     limit=DEFAULT_JOB_LIMIT, months=None) -> Optional[pd.DataFrame]:
+    def load_job_data(
+        self,
+        keywords=None,
+        city=None,
+        district=None,
+        limit=DEFAULT_JOB_LIMIT,
+        months=None,
+    ) -> Optional[pd.DataFrame]:
         """
         從數據庫載入職缺數據
 
@@ -54,11 +57,7 @@ class SalaryLocationDataProcessor:
         """
         logger.info("從數據庫獲取職缺數據")
         jobs_df = self.job_data_analyzer.get_jobs(
-            limit=limit, 
-            months=months, 
-            keywords=keywords, 
-            city=city, 
-            district=district
+            limit=limit, months=months, keywords=keywords, city=city, district=district
         )
         logger.debug(f"獲取到 {len(jobs_df)} 條職缺數據")
 
@@ -81,10 +80,14 @@ class SalaryLocationDataProcessor:
         columns_check = {}
 
         # 檢查地區列
-        columns_check['location'] = all(col in jobs_df.columns for col in REQUIRED_COLUMNS['location'])
+        columns_check["location"] = all(
+            col in jobs_df.columns for col in REQUIRED_COLUMNS["location"]
+        )
 
         # 檢查薪資列
-        columns_check['salary'] = all(col in jobs_df.columns for col in REQUIRED_COLUMNS['salary'])
+        columns_check["salary"] = all(
+            col in jobs_df.columns for col in REQUIRED_COLUMNS["salary"]
+        )
 
         return columns_check
 
@@ -92,6 +95,7 @@ class SalaryLocationDataProcessor:
 """
 Component functions for salary and location page
 """
+
 
 def display_salary_distribution(jobs_df):
     """
@@ -101,7 +105,7 @@ def display_salary_distribution(jobs_df):
         jobs_df: 職缺數據DataFrame
     """
     # 檢查是否有薪資信息
-    if 'salaryDesc' not in jobs_df.columns:
+    if "salaryDesc" not in jobs_df.columns:
         logger.warning("職缺數據中沒有薪資信息")
         st.info("職缺數據中沒有薪資信息")
         return
@@ -112,16 +116,16 @@ def display_salary_distribution(jobs_df):
     logger.info("分析薪資區間職缺分佈")
 
     # 統計薪資區間職缺數量
-    salary_dist = jobs_df['salaryDesc'].value_counts().sort_index()
+    salary_dist = jobs_df["salaryDesc"].value_counts().sort_index()
     logger.debug(f"薪資區間數量: {len(salary_dist)}")
 
     # 創建條形圖
     fig = px.bar(
         x=salary_dist.index,
         y=salary_dist.values,
-        title='薪資區間分佈',
-        labels={'x': '薪資區間', 'y': '職缺數量'},
-        color_discrete_sequence=['#1f77b4']
+        title="薪資區間分佈",
+        labels={"x": "薪資區間", "y": "職缺數量"},
+        color_discrete_sequence=["#1f77b4"],
     )
     st.plotly_chart(fig, use_container_width=True)
     logger.info("薪資區間職缺分佈圖表顯示完成")
@@ -143,17 +147,17 @@ def display_city_distribution(jobs_df):
     logger.info("分析城市職缺分佈")
 
     # 統計城市職缺數量
-    city_counts = jobs_df['city'].value_counts().reset_index()
-    city_counts.columns = ['城市', '職缺數']
+    city_counts = jobs_df["city"].value_counts().reset_index()
+    city_counts.columns = ["城市", "職缺數"]
     logger.debug(f"城市數量: {len(city_counts)}")
 
     # 創建城市職缺分佈條形圖
     fig = px.bar(
         city_counts.head(10),
-        x='城市',
-        y='職缺數',
-        title='城市職缺分佈 (前10名)',
-        color='城市'
+        x="城市",
+        y="職缺數",
+        title="城市職缺分佈 (前10名)",
+        color="城市",
     )
     st.plotly_chart(fig, use_container_width=True)
     logger.info("城市職缺分佈圖表顯示完成")
@@ -177,21 +181,23 @@ def display_district_distribution(jobs_df):
     logger.info("分析地區職缺分佈")
 
     # 統計地區職缺數量
-    district_counts = jobs_df.groupby(['city', 'district']).size().reset_index(name='職缺數')
-    district_counts.columns = ['城市', '地區', '職缺數']
+    district_counts = (
+        jobs_df.groupby(["city", "district"]).size().reset_index(name="職缺數")
+    )
+    district_counts.columns = ["城市", "地區", "職缺數"]
     logger.debug(f"地區數量: {len(district_counts)}")
 
     # 排序並獲取前15名地區
-    district_counts = district_counts.sort_values('職缺數', ascending=False).head(15)
+    district_counts = district_counts.sort_values("職缺數", ascending=False).head(15)
 
     # 創建地區職缺分佈條形圖
     fig = px.bar(
         district_counts,
-        x='地區',
-        y='職缺數',
-        title='地區職缺分佈 (前15名)',
-        color='城市',
-        hover_data=['城市']
+        x="地區",
+        y="職缺數",
+        title="地區職缺分佈 (前15名)",
+        color="城市",
+        hover_data=["城市"],
     )
     st.plotly_chart(fig, use_container_width=True)
     logger.info("地區職缺分佈圖表顯示完成")
@@ -213,19 +219,19 @@ def display_city_salary_relationship(jobs_df, city_counts):
     logger.info("分析城市與薪資關係")
 
     # 創建城市與薪資交叉表
-    city_salary_counts = pd.crosstab(jobs_df['city'], jobs_df['salaryDesc'])
+    city_salary_counts = pd.crosstab(jobs_df["city"], jobs_df["salaryDesc"])
     logger.debug(f"城市薪資交叉表大小: {city_salary_counts.shape}")
 
     # 獲取前10名城市
-    top_cities = city_counts.head(10)['城市'].tolist()
+    top_cities = city_counts.head(10)["城市"].tolist()
     city_salary_filtered = city_salary_counts.loc[top_cities]
 
     # 創建城市與薪資關係熱力圖
     fig = px.imshow(
         city_salary_filtered,
-        title='城市與薪資關係熱力圖',
+        title="城市與薪資關係熱力圖",
         labels=dict(x="薪資區間", y="城市", color="職缺數"),
-        color_continuous_scale='Viridis'
+        color_continuous_scale="Viridis",
     )
     st.plotly_chart(fig, use_container_width=True)
     logger.info("城市與薪資關係熱力圖顯示完成")
@@ -245,24 +251,32 @@ def display_district_salary_relationship(jobs_df, district_counts):
     logger.info("分析地區與薪資關係")
 
     # 創建城市-地區組合列
-    jobs_df['city_district'] = jobs_df['city'] + '-' + jobs_df['district']
+    jobs_df["city_district"] = jobs_df["city"] + "-" + jobs_df["district"]
 
     # 創建地區與薪資交叉表
-    district_salary_counts = pd.crosstab(jobs_df['city_district'], jobs_df['salaryDesc'])
+    district_salary_counts = pd.crosstab(
+        jobs_df["city_district"], jobs_df["salaryDesc"]
+    )
     logger.debug(f"地區薪資交叉表大小: {district_salary_counts.shape}")
 
     # 獲取前10名地區
-    top_districts = district_counts.head(10).apply(lambda x: f"{x['城市']}-{x['地區']}", axis=1).tolist()
+    top_districts = (
+        district_counts.head(10)
+        .apply(lambda x: f"{x['城市']}-{x['地區']}", axis=1)
+        .tolist()
+    )
 
     # 過濾只顯示前10名地區
-    district_salary_filtered = district_salary_counts.loc[district_salary_counts.index.isin(top_districts)]
+    district_salary_filtered = district_salary_counts.loc[
+        district_salary_counts.index.isin(top_districts)
+    ]
 
     # 創建地區與薪資關係熱力圖
     fig = px.imshow(
         district_salary_filtered,
-        title='地區與薪資關係熱力圖',
+        title="地區與薪資關係熱力圖",
         labels=dict(x="薪資區間", y="城市-地區", color="職缺數"),
-        color_continuous_scale='Viridis'
+        color_continuous_scale="Viridis",
     )
     st.plotly_chart(fig, use_container_width=True)
     logger.info("地區與薪資關係熱力圖顯示完成")
@@ -282,24 +296,30 @@ def display_location_map(city_counts):
 
     # 定義城市座標
     city_coordinates = {
-        '台北市': [121.5598, 25.0598],
-        '新北市': [121.4657, 25.0125],
-        '桃園市': [121.3010, 24.9936],
-        '台中市': [120.6839, 24.1377],
-        '台南市': [120.2141, 23.0008],
-        '高雄市': [120.3011, 22.6273],
-        '新竹市': [120.9647, 24.8138],
-        '新竹縣': [121.0165, 24.8390],
-        '基隆市': [121.7419, 25.1287]
+        "台北市": [121.5598, 25.0598],
+        "新北市": [121.4657, 25.0125],
+        "桃園市": [121.3010, 24.9936],
+        "台中市": [120.6839, 24.1377],
+        "台南市": [120.2141, 23.0008],
+        "高雄市": [120.3011, 22.6273],
+        "新竹市": [120.9647, 24.8138],
+        "新竹縣": [121.0165, 24.8390],
+        "基隆市": [121.7419, 25.1287],
     }
     logger.debug(f"城市座標數量: {len(city_coordinates)}")
 
     # 添加座標到城市數據
-    city_counts['lat'] = city_counts['城市'].map(lambda x: city_coordinates.get(x, [0, 0])[1])
-    city_counts['lon'] = city_counts['城市'].map(lambda x: city_coordinates.get(x, [0, 0])[0])
+    city_counts["lat"] = city_counts["城市"].map(
+        lambda x: city_coordinates.get(x, [0, 0])[1]
+    )
+    city_counts["lon"] = city_counts["城市"].map(
+        lambda x: city_coordinates.get(x, [0, 0])[0]
+    )
 
     # 過濾沒有座標的城市
-    city_counts_plot = city_counts[(city_counts['lat'] != 0) & (city_counts['lon'] != 0)].copy()
+    city_counts_plot = city_counts[
+        (city_counts["lat"] != 0) & (city_counts["lon"] != 0)
+    ].copy()
     logger.debug(f"有座標的城市數量: {len(city_counts_plot)}")
 
     if city_counts_plot.empty:
@@ -322,16 +342,16 @@ def _create_map_visualization(city_counts_plot):
     logger.debug("創建地圖可視化")
     fig = px.scatter_mapbox(
         city_counts_plot,
-        lat='lat',
-        lon='lon',
-        size='職缺數',
-        hover_name='城市',
-        hover_data=['職缺數'],
-        color='職缺數',
+        lat="lat",
+        lon="lon",
+        size="職缺數",
+        hover_name="城市",
+        hover_data=["職缺數"],
+        color="職缺數",
         zoom=7,
-        title='台灣各城市職缺分布',
-        mapbox_style='carto-positron',
-        color_continuous_scale='Viridis'
+        title="台灣各城市職缺分布",
+        mapbox_style="carto-positron",
+        color_continuous_scale="Viridis",
     )
 
     # 設置地圖中心
@@ -380,8 +400,8 @@ class SalaryLocationPageRenderer:
         Args:
             column_type: 缺失的列類型
         """
-        if column_type == 'location':
-            st.info(ERROR_MESSAGES['no_location_data'])
+        if column_type == "location":
+            st.info(ERROR_MESSAGES["no_location_data"])
 
     def render_analysis_error(self, error_message: str):
         """
@@ -391,7 +411,7 @@ class SalaryLocationPageRenderer:
             error_message: 錯誤信息
         """
         st.error(f"分析薪資與地區時發生錯誤: {error_message}")
-        st.info(ERROR_MESSAGES['general_error'])
+        st.info(ERROR_MESSAGES["general_error"])
 
     def render_salary_distribution(self, jobs_df: pd.DataFrame):
         """
@@ -421,7 +441,9 @@ class SalaryLocationPageRenderer:
 
         return city_counts, district_counts
 
-    def render_salary_location_relationship(self, jobs_df: pd.DataFrame, city_counts, district_counts):
+    def render_salary_location_relationship(
+        self, jobs_df: pd.DataFrame, city_counts, district_counts
+    ):
         """
         渲染薪資與地區關係圖表
 
@@ -443,9 +465,6 @@ class SalaryLocationPageRenderer:
         display_location_map(city_counts)
 
 
-
-
-
 class SalaryLocationPage:
     """
     薪資與地區分析頁面，整合數據處理和UI渲染
@@ -461,7 +480,14 @@ class SalaryLocationPage:
         self.data_processor = SalaryLocationDataProcessor(job_data_analyzer)
         self.renderer = SalaryLocationPageRenderer()
 
-    def show(self, keywords=None, city=None, district=None, limit=DEFAULT_JOB_LIMIT, months=None):
+    def show(
+        self,
+        keywords=None,
+        city=None,
+        district=None,
+        limit=DEFAULT_JOB_LIMIT,
+        months=None,
+    ):
         """
         顯示薪資與地區分析頁面
 
@@ -495,17 +521,19 @@ class SalaryLocationPage:
             columns_check = self.data_processor.has_required_columns(jobs_df)
 
             # 分析薪資分佈
-            if columns_check['salary']:
+            if columns_check["salary"]:
                 self.renderer.render_salary_distribution(jobs_df)
             else:
-                self.renderer.render_missing_column_info('salary')
+                self.renderer.render_missing_column_info("salary")
 
             # 分析地區分佈
-            if columns_check['location']:
-                city_counts, district_counts = self.renderer.render_location_distribution(jobs_df)
+            if columns_check["location"]:
+                city_counts, district_counts = (
+                    self.renderer.render_location_distribution(jobs_df)
+                )
 
                 # 分析薪資與地區關係
-                if columns_check['salary']:
+                if columns_check["salary"]:
                     self.renderer.render_salary_location_relationship(
                         jobs_df, city_counts, district_counts
                     )
@@ -513,8 +541,8 @@ class SalaryLocationPage:
                 # 創建地區分佈地圖
                 self.renderer.render_location_map(city_counts)
             else:
-                logger.warning(ERROR_MESSAGES['no_location_data'])
-                self.renderer.render_missing_column_info('location')
+                logger.warning(ERROR_MESSAGES["no_location_data"])
+                self.renderer.render_missing_column_info("location")
 
         except Exception as e:
             # 記錄錯誤信息
@@ -522,8 +550,14 @@ class SalaryLocationPage:
             self.renderer.render_analysis_error(str(e))
 
 
-def show_salary_location_page(job_data_analyzer, keywords=None, city=None, district=None, 
-                             limit=DEFAULT_JOB_LIMIT, months=None):
+def show_salary_location_page(
+    job_data_analyzer,
+    keywords=None,
+    city=None,
+    district=None,
+    limit=DEFAULT_JOB_LIMIT,
+    months=None,
+):
     """
     顯示薪資與地區分析頁面，分析不同薪資區間和地區的職缺分佈情況。
 

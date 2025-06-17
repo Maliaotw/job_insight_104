@@ -52,7 +52,7 @@ def create_subheader(page: str) -> None:
         "每日職缺變化分析": "職缺數量變化趨勢與分析",
         "產業職缺分佈與趨勢": "各產業職缺分佈與發展趨勢",
         "招聘效率分析": "企業招聘流程效率指標",
-        "薪資與地區分析": "各地區與職位薪資水平比較"
+        "薪資與地區分析": "各地區與職位薪資水平比較",
     }
 
     # 獲取當前頁面的子標題
@@ -80,7 +80,8 @@ def create_help_button() -> None:
     創建幫助按鈕，為新用戶提供使用指南。
     """
     with st.expander("💡 使用指南", expanded=False):
-        st.markdown("""
+        st.markdown(
+            """
         ### 如何使用本平台
 
         1. **選擇分析頁面**: 在左側導航欄選擇您想查看的分析頁面
@@ -93,10 +94,15 @@ def create_help_button() -> None:
         - **數據來源**: 所有數據來自104人力銀行網站
         - **更新頻率**: 數據每日自動更新
         - **過濾條件**: 可以組合多個過濾條件進行精確分析
-        """)
+        """
+        )
 
 
-def create_header(title: str = "📊 104 職缺市場洞察平台", introduction: Optional[str] = None, page: str = "總覽 Dashboard") -> None:
+def create_header(
+    title: str = "📊 104 職缺市場洞察平台",
+    introduction: Optional[str] = None,
+    page: str = "總覽 Dashboard",
+) -> None:
     """
     創建頁面標題和介紹。
 

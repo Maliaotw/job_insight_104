@@ -14,7 +14,7 @@ from apps.visualization.analysis.df_utils import (
     extract_application_counts,
     extract_salary_range,
     analyze_industry_distribution,
-    get_job_display_columns
+    get_job_display_columns,
 )
 from config.settings import logger
 
@@ -39,10 +39,17 @@ class JobDataAnalyzer:
         self.db_manager = DuckDBManager()
         self.should_close_db = True
 
-
         logger.info("JobDataAnalyzer 初始化完成")
 
-    def get_jobs(self, limit = 10000, months: int = None, keywords: List[str] = None, city: str = None, district: str = None, include_inactive: bool = False) -> pd.DataFrame:
+    def get_jobs(
+        self,
+        limit=10000,
+        months: int = None,
+        keywords: List[str] = None,
+        city: str = None,
+        district: str = None,
+        include_inactive: bool = False,
+    ) -> pd.DataFrame:
         """
         從數據庫獲取職缺，並可選擇性地進行過濾。
 
@@ -65,24 +72,28 @@ class JobDataAnalyzer:
             db_limit = limit
 
         # 從數據庫獲取指定數量的職缺
-        jobs_df = self.db_manager.get_jobs(limit=db_limit, include_inactive=include_inactive)
+        jobs_df = self.db_manager.get_jobs(
+            limit=db_limit, include_inactive=include_inactive
+        )
 
         if jobs_df.empty:
             logger.warning("數據庫中沒有找到職缺")
             return jobs_df
 
         # 如果提供了月份參數，按日期過濾
-        if months is not None and 'appearDate' in jobs_df.columns:
+        if months is not None and "appearDate" in jobs_df.columns:
             logger.info(f"過濾最近 {months} 個月的職缺")
             # 如果appearDate不是datetime類型，則轉換
-            if not pd.api.types.is_datetime64_dtype(jobs_df['appearDate']):
-                jobs_df['appearDate'] = pd.to_datetime(jobs_df['appearDate'], format='%Y%m%d')
+            if not pd.api.types.is_datetime64_dtype(jobs_df["appearDate"]):
+                jobs_df["appearDate"] = pd.to_datetime(
+                    jobs_df["appearDate"], format="%Y%m%d"
+                )
 
             # 計算截止日期
-            cutoff_date = datetime.now() - timedelta(days=30*months)
+            cutoff_date = datetime.now() - timedelta(days=30 * months)
 
             # 過濾職缺
-            jobs_df = jobs_df[jobs_df['appearDate'] >= cutoff_date]
+            jobs_df = jobs_df[jobs_df["appearDate"] >= cutoff_date]
 
         # 如果提供了關鍵詞、城市或地區，進行過濾
         if keywords or city or district:
@@ -90,8 +101,13 @@ class JobDataAnalyzer:
 
         return jobs_df
 
-    def filter_jobs_by_keywords(self, jobs_df: pd.DataFrame, keywords: List[str] = None, 
-                               city: str = None, district: str = None) -> pd.DataFrame:
+    def filter_jobs_by_keywords(
+        self,
+        jobs_df: pd.DataFrame,
+        keywords: List[str] = None,
+        city: str = None,
+        district: str = None,
+    ) -> pd.DataFrame:
         """
         根據關鍵詞、城市和地區過濾職缺。
 
@@ -111,61 +127,78 @@ class JobDataAnalyzer:
             logger.info(f"根據關鍵詞過濾職缺: {keywords}")
 
             # 檢查是否有search_keyword欄位
-            if 'search_keyword' in filtered_df.columns:
+            if "search_keyword" in filtered_df.columns:
                 # 使用search_keyword欄位進行過濾
                 logger.info("使用search_keyword欄位進行過濾")
 
                 # 創建一個臨時列來存儲搜索文本
-                filtered_df['search_text_temp'] = filtered_df['search_keyword'].apply(
-                    lambda x: ' '.join(x) if isinstance(x, list) else str(x)
+                filtered_df["search_text_temp"] = filtered_df["search_keyword"].apply(
+                    lambda x: " ".join(x) if isinstance(x, list) else str(x)
                 )
 
                 # 將空值填充為空字符串，並轉換為小寫
-                filtered_df['search_text_temp'] = filtered_df['search_text_temp'].fillna('').str.lower()
+                filtered_df["search_text_temp"] = (
+                    filtered_df["search_text_temp"].fillna("").str.lower()
+                )
 
                 # 按每個關鍵詞過濾
                 for keyword in keywords:
                     keyword = keyword.lower()
-                    filtered_df = filtered_df[filtered_df['search_text_temp'].str.contains(keyword, na=False)]
+                    filtered_df = filtered_df[
+                        filtered_df["search_text_temp"].str.contains(keyword, na=False)
+                    ]
 
                 # 刪除臨時列
-                filtered_df = filtered_df.drop('search_text_temp', axis=1)
+                filtered_df = filtered_df.drop("search_text_temp", axis=1)
             else:
                 # 如果沒有search_keyword欄位，則使用原來的方法
                 logger.info("search_keyword欄位不存在，使用組合文本進行過濾")
                 # 創建用於搜索的組合文本字段
-                if 'jobDetail' in filtered_df.columns and 'jobName' in filtered_df.columns:
-                    filtered_df['search_text'] = filtered_df['jobName'] + ' ' + filtered_df['jobDetail'].fillna('')
-                elif 'jobName' in filtered_df.columns:
-                    filtered_df['search_text'] = filtered_df['jobName']
+                if (
+                    "jobDetail" in filtered_df.columns
+                    and "jobName" in filtered_df.columns
+                ):
+                    filtered_df["search_text"] = (
+                        filtered_df["jobName"]
+                        + " "
+                        + filtered_df["jobDetail"].fillna("")
+                    )
+                elif "jobName" in filtered_df.columns:
+                    filtered_df["search_text"] = filtered_df["jobName"]
                 else:
                     # 如果兩個列都不存在，創建一個空列
-                    filtered_df['search_text'] = ''
+                    filtered_df["search_text"] = ""
 
                 # 如果有公司名稱，添加到搜索文本中
-                if 'custName' in filtered_df.columns:
-                    filtered_df['search_text'] = filtered_df['search_text'] + ' ' + filtered_df['custName'].fillna('')
+                if "custName" in filtered_df.columns:
+                    filtered_df["search_text"] = (
+                        filtered_df["search_text"]
+                        + " "
+                        + filtered_df["custName"].fillna("")
+                    )
 
                 # 將搜索文本轉換為小寫，以便進行不區分大小寫的搜索
-                filtered_df['search_text'] = filtered_df['search_text'].str.lower()
+                filtered_df["search_text"] = filtered_df["search_text"].str.lower()
 
                 # 按每個關鍵詞過濾
                 for keyword in keywords:
                     keyword = keyword.lower()
-                    filtered_df = filtered_df[filtered_df['search_text'].str.contains(keyword, na=False)]
+                    filtered_df = filtered_df[
+                        filtered_df["search_text"].str.contains(keyword, na=False)
+                    ]
 
                 # 刪除臨時搜索文本列
-                filtered_df = filtered_df.drop('search_text', axis=1)
+                filtered_df = filtered_df.drop("search_text", axis=1)
 
         # 如果提供了城市，進行過濾
-        if city and 'city' in filtered_df.columns:
+        if city and "city" in filtered_df.columns:
             logger.info(f"根據城市過濾職缺: {city}")
-            filtered_df = filtered_df[filtered_df['city'] == city]
+            filtered_df = filtered_df[filtered_df["city"] == city]
 
         # 如果提供了地區，進行過濾
-        if district and 'district' in filtered_df.columns:
+        if district and "district" in filtered_df.columns:
             logger.info(f"根據地區過濾職缺: {district}")
-            filtered_df = filtered_df[filtered_df['district'] == district]
+            filtered_df = filtered_df[filtered_df["district"] == district]
 
         logger.info(f"過濾後的職缺: {len(filtered_df)} 個，共 {len(jobs_df)} 個")
         return filtered_df

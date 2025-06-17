@@ -7,8 +7,6 @@ src/database/duckdb_manager.py
 src/database/mongodb_manager.py
 src/database/tools/__init__.py
 src/database/tools/check_table_schema.py
-src/gcp/__init__.py
-src/gcp/gcs.py
 src/job_insight_104.egg-info/PKG-INFO
 src/job_insight_104.egg-info/SOURCES.txt
 src/job_insight_104.egg-info/dependency_links.txt

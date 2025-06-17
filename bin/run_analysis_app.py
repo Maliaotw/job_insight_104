@@ -30,15 +30,11 @@ class AnalysisApp:
             browser (bool): Open the app in a browser (default: False)
         """
 
-
         # Get the path to the Streamlit analysis app
         app_path = Path(__file__).parent.parent / "apps" / "visualization" / "app.py"
 
-
         # Build the command to run Streamlit
-        cmd = [
-            "streamlit", "run", str(app_path), "--server.port", str(port)
-        ]
+        cmd = ["streamlit", "run", str(app_path), "--server.port", str(port)]
 
         # Add browser option if specified
         if not browser:
@@ -46,7 +42,6 @@ class AnalysisApp:
 
         # Set environment variables for configuration
         env = os.environ.copy()
-
 
         logger.info(f"Starting Streamlit analysis app from: {app_path}")
         logger.info(f"App will be available at: http://localhost:{port}")
@@ -65,7 +60,6 @@ def main():
     """Main function to start the Fire CLI."""
     app = AnalysisApp()
     app.run(port=8501, browser=True)
-
 
 
 if __name__ == "__main__":

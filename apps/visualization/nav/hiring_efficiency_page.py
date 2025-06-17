@@ -13,11 +13,12 @@ import streamlit as st
 import plotly.express as px
 from typing import Optional, List, Tuple, Dict, Any
 
-from apps.visualization.analysis.df_utils import prepare_jobs_analysis_df, extract_application_counts
-from apps.visualization.analysis.job_data_analyzer import JobDataAnalyzer
-from apps.visualization.components import (
-    display_filter_info
+from apps.visualization.analysis.df_utils import (
+    prepare_jobs_analysis_df,
+    extract_application_counts,
 )
+from apps.visualization.analysis.job_data_analyzer import JobDataAnalyzer
+from apps.visualization.components import display_filter_info
 from config.settings import logger
 
 
@@ -30,7 +31,7 @@ def display_job_duration_distribution(jobs_analysis):
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有在架天數數據
-    if '在架天數' in jobs_analysis.columns:
+    if "在架天數" in jobs_analysis.columns:
         # 記錄顯示職缺在架時間分布
         logger.debug("顯示職缺在架時間分布區塊")
         st.subheader("職缺在架時間分布")
@@ -38,11 +39,11 @@ def display_job_duration_distribution(jobs_analysis):
 
         # 創建直方圖
         fig = px.histogram(
-            jobs_analysis, 
-            x='在架天數', 
-            nbins=20, 
-            title='職缺在架時間分布',
-            color_discrete_sequence=['skyblue']
+            jobs_analysis,
+            x="在架天數",
+            nbins=20,
+            title="職缺在架時間分布",
+            color_discrete_sequence=["skyblue"],
         )
         st.plotly_chart(fig, use_container_width=True)
         logger.info("職缺在架時間分布圖表顯示完成")
@@ -56,26 +57,22 @@ def display_experience_application_relationship(jobs_analysis):
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有工作經驗和應徵人數範圍數據
-    if all(col in jobs_analysis.columns for col in ['應徵人數範圍', '工作經驗']):
+    if all(col in jobs_analysis.columns for col in ["應徵人數範圍", "工作經驗"]):
         # 記錄顯示工作經驗與應徵人數關係
         logger.debug("顯示工作經驗與應徵人數關係區塊")
         st.subheader("工作經驗與應徵人數關係")
         logger.info("分析工作經驗與應徵人數關係")
 
         # 創建交叉表
-        exp_apply_cross = pd.crosstab(jobs_analysis['工作經驗'], jobs_analysis['應徵人數範圍'])
+        exp_apply_cross = pd.crosstab(
+            jobs_analysis["工作經驗"], jobs_analysis["應徵人數範圍"]
+        )
         logger.debug(f"交叉表大小: {exp_apply_cross.shape}")
 
         # 創建堆疊條形圖
-        fig = px.bar(
-            exp_apply_cross, 
-            barmode='stack',
-            title='工作經驗與應徵人數關係'
-        )
+        fig = px.bar(exp_apply_cross, barmode="stack", title="工作經驗與應徵人數關係")
         fig.update_layout(
-            xaxis_title='工作經驗要求',
-            yaxis_title='職缺數量',
-            xaxis_tickangle=-45
+            xaxis_title="工作經驗要求", yaxis_title="職缺數量", xaxis_tickangle=-45
         )
         st.plotly_chart(fig, use_container_width=True)
         logger.info("工作經驗與應徵人數關係圖表顯示完成")
@@ -89,18 +86,18 @@ def display_job_competition_distribution(jobs_analysis):
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有職缺競爭度數據
-    if '職缺競爭度' in jobs_analysis.columns:
+    if "職缺競爭度" in jobs_analysis.columns:
         # 記錄顯示職缺競爭度分布
         logger.debug("顯示職缺競爭度分布區塊")
         st.subheader("職缺競爭度分布")
         logger.info("創建職缺競爭度分布圖表")
 
         # 創建餅圖
-        competition_counts = jobs_analysis['職缺競爭度'].value_counts()
+        competition_counts = jobs_analysis["職缺競爭度"].value_counts()
         fig = px.pie(
             values=competition_counts.values,
             names=competition_counts.index,
-            title='職缺競爭度分布'
+            title="職缺競爭度分布",
         )
         st.plotly_chart(fig, use_container_width=True)
         logger.info("職缺競爭度分布圖表顯示完成")
@@ -114,26 +111,22 @@ def display_education_salary_relationship(jobs_analysis):
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有教育程度和薪資範圍數據
-    if all(col in jobs_analysis.columns for col in ['教育程度', '薪資範圍']):
+    if all(col in jobs_analysis.columns for col in ["教育程度", "薪資範圍"]):
         # 記錄顯示教育程度與薪資範圍關係
         logger.debug("顯示教育程度與薪資範圍關係區塊")
         st.subheader("教育程度與薪資範圍關係")
         logger.info("分析教育程度與薪資範圍關係")
 
         # 創建交叉表
-        edu_salary_cross = pd.crosstab(jobs_analysis['教育程度'], jobs_analysis['薪資範圍'])
+        edu_salary_cross = pd.crosstab(
+            jobs_analysis["教育程度"], jobs_analysis["薪資範圍"]
+        )
         logger.debug(f"交叉表大小: {edu_salary_cross.shape}")
 
         # 創建堆疊條形圖
-        fig = px.bar(
-            edu_salary_cross, 
-            barmode='stack',
-            title='教育程度與薪資範圍關係'
-        )
+        fig = px.bar(edu_salary_cross, barmode="stack", title="教育程度與薪資範圍關係")
         fig.update_layout(
-            xaxis_title='教育程度要求',
-            yaxis_title='職缺數量',
-            xaxis_tickangle=-45
+            xaxis_title="教育程度要求", yaxis_title="職缺數量", xaxis_tickangle=-45
         )
         st.plotly_chart(fig, use_container_width=True)
         logger.info("教育程度與薪資範圍關係圖表顯示完成")
@@ -148,21 +141,26 @@ def display_hiring_efficiency_long_unfilled_jobs(job_data_analyzer, jobs_analysi
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有長期未招滿數據
-    if '是否長期未招滿' in jobs_analysis.columns:
+    if "是否長期未招滿" in jobs_analysis.columns:
         # 記錄顯示長期未招滿職缺分析
         logger.debug("顯示長期未招滿職缺分析區塊")
         st.subheader("長期未招滿職缺分析")
         logger.info("分析長期未招滿職缺")
 
         # 篩選長期未招滿職缺
-        long_term_unfilled = jobs_analysis[jobs_analysis['是否長期未招滿']]
+        long_term_unfilled = jobs_analysis[jobs_analysis["是否長期未招滿"]]
         logger.debug(f"長期未招滿職缺數量: {len(long_term_unfilled)}")
         st.write(f"長期未招滿職缺數量: {len(long_term_unfilled)}")
 
         if not long_term_unfilled.empty:
             # 顯示長期未招滿職缺表格
             display_cols = job_data_analyzer.get_job_display_columns(long_term_unfilled)
-            st.dataframe(long_term_unfilled[display_cols].sort_values('在架天數', ascending=False), use_container_width=True)
+            st.dataframe(
+                long_term_unfilled[display_cols].sort_values(
+                    "在架天數", ascending=False
+                ),
+                use_container_width=True,
+            )
             logger.info("長期未招滿職缺表格顯示完成")
         else:
             logger.info("沒有發現長期未招滿的職缺")
@@ -178,7 +176,7 @@ def display_hiring_efficiency_recent_jobs(job_data_analyzer, jobs_analysis):
         jobs_analysis: 職缺分析數據DataFrame
     """
     # 檢查是否有在架天數數據
-    if '在架天數' in jobs_analysis.columns:
+    if "在架天數" in jobs_analysis.columns:
         # 記錄顯示剛開始招募的職缺列表
         logger.debug("顯示剛開始招募的職缺列表區塊")
         st.subheader("剛開始招募的職缺列表")
@@ -186,14 +184,17 @@ def display_hiring_efficiency_recent_jobs(job_data_analyzer, jobs_analysis):
         logger.info("分析剛開始招募的職缺")
 
         # 篩選剛開始招募的職缺
-        recent_jobs = jobs_analysis[jobs_analysis['在架天數'] < 30]
+        recent_jobs = jobs_analysis[jobs_analysis["在架天數"] < 30]
         logger.debug(f"剛開始招募的職缺數量: {len(recent_jobs)}")
         st.write(f"剛開始招募的職缺數量: {len(recent_jobs)}")
 
         if not recent_jobs.empty:
             # 顯示剛開始招募的職缺表格
             display_cols = job_data_analyzer.get_job_display_columns(recent_jobs)
-            st.dataframe(recent_jobs[display_cols].sort_values('在架天數', ascending=True), use_container_width=True)
+            st.dataframe(
+                recent_jobs[display_cols].sort_values("在架天數", ascending=True),
+                use_container_width=True,
+            )
             logger.info("剛開始招募的職缺表格顯示完成")
         else:
             logger.info("沒有發現剛開始招募的職缺")
@@ -203,11 +204,17 @@ def display_hiring_efficiency_recent_jobs(job_data_analyzer, jobs_analysis):
 # Constants
 MAX_JOBS_LIMIT = 10000
 REQUIRED_COLUMNS = [
-    'jobNo', 'jobName', 'custName', 'applyDesc', 
-    'salaryDesc', 'periodDesc', 'optionEdu', 'appearDate'
+    "jobNo",
+    "jobName",
+    "custName",
+    "applyDesc",
+    "salaryDesc",
+    "periodDesc",
+    "optionEdu",
+    "appearDate",
 ]
-LOW_COMPETITION_RANGES = ['0~5人應徵']
-HIGH_COMPETITION_RANGES = ['大於30人應徵']
+LOW_COMPETITION_RANGES = ["0~5人應徵"]
+HIGH_COMPETITION_RANGES = ["大於30人應徵"]
 
 
 class HiringEfficiencyDataProcessor:
@@ -225,11 +232,14 @@ class HiringEfficiencyDataProcessor:
         """
         self.job_data_analyzer: JobDataAnalyzer = job_data_analyzer
 
-    def load_jobs_data(self, keywords: Optional[List[str]] = None, 
-                      city: Optional[str] = None, 
-                      district: Optional[str] = None, 
-                      limit: int = MAX_JOBS_LIMIT, 
-                      months: Optional[int] = None) -> pd.DataFrame:
+    def load_jobs_data(
+        self,
+        keywords: Optional[List[str]] = None,
+        city: Optional[str] = None,
+        district: Optional[str] = None,
+        limit: int = MAX_JOBS_LIMIT,
+        months: Optional[int] = None,
+    ) -> pd.DataFrame:
         """
         從數據庫載入職缺數據。
 
@@ -245,11 +255,7 @@ class HiringEfficiencyDataProcessor:
         """
         logger.info("從數據庫獲取職缺數據")
         jobs_df = self.job_data_analyzer.get_jobs(
-            limit=limit, 
-            months=months, 
-            keywords=keywords, 
-            city=city, 
-            district=district
+            limit=limit, months=months, keywords=keywords, city=city, district=district
         )
         logger.debug(f"獲取到 {len(jobs_df)} 條職缺數據")
         return jobs_df
@@ -292,7 +298,7 @@ class HiringEfficiencyDataProcessor:
         Returns:
             更新後的職缺分析數據DataFrame
         """
-        if '應徵人數範圍' in jobs_analysis.columns:
+        if "應徵人數範圍" in jobs_analysis.columns:
             # 提取應徵人數數據
             logger.info("提取應徵人數數據")
             jobs_analysis = extract_application_counts(jobs_analysis)
@@ -300,9 +306,14 @@ class HiringEfficiencyDataProcessor:
 
             # 計算職缺競爭度
             logger.info("計算職缺競爭度")
-            jobs_analysis['職缺競爭度'] = '中等'
-            jobs_analysis.loc[jobs_analysis['應徵人數範圍'].isin(LOW_COMPETITION_RANGES), '職缺競爭度'] = '低'
-            jobs_analysis.loc[jobs_analysis['應徵人數範圍'].isin(HIGH_COMPETITION_RANGES), '職缺競爭度'] = '高'
+            jobs_analysis["職缺競爭度"] = "中等"
+            jobs_analysis.loc[
+                jobs_analysis["應徵人數範圍"].isin(LOW_COMPETITION_RANGES), "職缺競爭度"
+            ] = "低"
+            jobs_analysis.loc[
+                jobs_analysis["應徵人數範圍"].isin(HIGH_COMPETITION_RANGES),
+                "職缺競爭度",
+            ] = "高"
             logger.debug("職缺競爭度計算完成")
 
         return jobs_analysis
@@ -338,7 +349,9 @@ class HiringEfficiencyPageRenderer:
     def render_missing_columns_info(self, missing_cols: List[str]):
         """渲染缺少列的信息。"""
         if missing_cols:
-            st.info(f"職缺數據中缺少以下列: {', '.join(missing_cols)}，無法進行完整分析")
+            st.info(
+                f"職缺數據中缺少以下列: {', '.join(missing_cols)}，無法進行完整分析"
+            )
 
     def render_analysis_charts(self, job_data_analyzer, jobs_analysis: pd.DataFrame):
         """渲染分析圖表。"""
@@ -366,7 +379,14 @@ class HiringEfficiencyPageRenderer:
         st.info("無法分析招聘效率，請確保數據格式正確。")
 
 
-def show_hiring_efficiency_page(job_data_analyzer, keywords=None, city=None, district=None, limit=MAX_JOBS_LIMIT, months=None):
+def show_hiring_efficiency_page(
+    job_data_analyzer,
+    keywords=None,
+    city=None,
+    district=None,
+    limit=MAX_JOBS_LIMIT,
+    months=None,
+):
     """
     顯示招聘效率分析頁面，分析不同職位的招聘效率。
 

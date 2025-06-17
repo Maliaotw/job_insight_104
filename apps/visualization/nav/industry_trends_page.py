@@ -36,11 +36,7 @@ def display_industry_distribution_chart(industry_dist):
 
     # 創建條形圖
     fig = px.bar(
-        industry_dist, 
-        x='產業類別', 
-        y='職缺數',
-        title='產業職缺分佈',
-        color='產業類別'
+        industry_dist, x="產業類別", y="職缺數", title="產業職缺分佈", color="產業類別"
     )
     fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig, use_container_width=True)
@@ -57,7 +53,9 @@ def display_industry_distribution_details(industry_dist):
     # 記錄顯示產業分佈詳情
     logger.debug("顯示產業職缺分佈詳情區塊")
     st.subheader("產業職缺分佈詳情")
-    st.dataframe(industry_dist[['產業類別', '職缺數', '公司數']], use_container_width=True)
+    st.dataframe(
+        industry_dist[["產業類別", "職缺數", "公司數"]], use_container_width=True
+    )
     logger.info("產業職缺分佈詳情表格顯示完成")
 
 
@@ -74,18 +72,25 @@ def display_industry_trends_chart(monthly_industry_stats):
     logger.info("創建產業月度職缺趨勢圖表")
 
     # 獲取月份列
-    month_cols = [col for col in monthly_industry_stats.columns 
-                 if col not in ['產業類別', '增長量', '增長率']]
+    month_cols = [
+        col
+        for col in monthly_industry_stats.columns
+        if col not in ["產業類別", "增長量", "增長率"]
+    ]
     logger.debug(f"月份列: {month_cols}")
 
     # 允許用戶選擇要顯示的產業
-    default_industries = monthly_industry_stats.sort_values(month_cols[-1], ascending=False)['產業類別'].head(5).tolist()
+    default_industries = (
+        monthly_industry_stats.sort_values(month_cols[-1], ascending=False)["產業類別"]
+        .head(5)
+        .tolist()
+    )
     logger.debug(f"默認顯示的產業: {default_industries}")
 
     selected_industries = st.multiselect(
         "選擇要顯示的產業",
-        options=monthly_industry_stats['產業類別'].tolist(),
-        default=default_industries
+        options=monthly_industry_stats["產業類別"].tolist(),
+        default=default_industries,
     )
     logger.debug(f"用戶選擇的產業: {selected_industries}")
 
@@ -95,7 +100,9 @@ def display_industry_trends_chart(monthly_industry_stats):
         return
 
     # 過濾選定的產業數據
-    filtered_data = monthly_industry_stats[monthly_industry_stats['產業類別'].isin(selected_industries)]
+    filtered_data = monthly_industry_stats[
+        monthly_industry_stats["產業類別"].isin(selected_industries)
+    ]
     logger.debug(f"過濾後的產業數據: {len(filtered_data)} 條")
 
     # 創建趨勢線圖
@@ -114,18 +121,20 @@ def create_industry_trend_line_chart(filtered_data, month_cols):
     logger.debug("創建產業趨勢線圖")
     fig = go.Figure()
     for _, industry in filtered_data.iterrows():
-        fig.add_trace(go.Scatter(
-            x=month_cols,
-            y=industry[month_cols].values,
-            name=industry['產業類別'],
-            mode='lines+markers'
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=month_cols,
+                y=industry[month_cols].values,
+                name=industry["產業類別"],
+                mode="lines+markers",
+            )
+        )
 
     fig.update_layout(
-        title='產業月度職缺趨勢',
-        xaxis_title='月份',
-        yaxis_title='職缺數量',
-        hovermode="x unified"
+        title="產業月度職缺趨勢",
+        xaxis_title="月份",
+        yaxis_title="職缺數量",
+        hovermode="x unified",
     )
     logger.debug("產業月度職缺趨勢圖表配置完成")
 
@@ -146,15 +155,17 @@ def display_industry_growth_table(filtered_data):
     logger.info("顯示產業職缺增長情況")
 
     # 創建增長表格
-    growth_data = filtered_data[['產業類別', '增長量', '增長率']].sort_values('增長量', ascending=False)
+    growth_data = filtered_data[["產業類別", "增長量", "增長率"]].sort_values(
+        "增長量", ascending=False
+    )
     st.dataframe(growth_data, use_container_width=True)
     logger.info("產業職缺增長情況表格顯示完成")
 
 
 # Constants
 DEFAULT_JOB_LIMIT = 10000
-INDUSTRY_COLUMN = 'coIndustryDesc'
-DATE_COLUMN = 'appearDate'
+INDUSTRY_COLUMN = "coIndustryDesc"
+DATE_COLUMN = "appearDate"
 
 
 class IndustryDataProcessor:
@@ -175,8 +186,14 @@ class IndustryDataProcessor:
         self.job_data_analyzer = job_data_analyzer
         self.trend_analyzer = trend_analyzer
 
-    def load_job_data(self, keywords=None, city=None, district=None, 
-                     limit=DEFAULT_JOB_LIMIT, months=None) -> Optional[pd.DataFrame]:
+    def load_job_data(
+        self,
+        keywords=None,
+        city=None,
+        district=None,
+        limit=DEFAULT_JOB_LIMIT,
+        months=None,
+    ) -> Optional[pd.DataFrame]:
         """
         從數據庫載入職缺數據
 
@@ -192,11 +209,7 @@ class IndustryDataProcessor:
         """
         logger.info("從數據庫獲取職缺數據")
         jobs_df = self.job_data_analyzer.get_jobs(
-            limit=limit, 
-            months=months, 
-            keywords=keywords, 
-            city=city, 
-            district=district
+            limit=limit, months=months, keywords=keywords, city=city, district=district
         )
         logger.debug(f"獲取到 {len(jobs_df)} 條職缺數據")
 
@@ -218,7 +231,9 @@ class IndustryDataProcessor:
         """
         logger.info("分析產業職缺分佈")
         industry_dist = self.trend_analyzer.analyze_industry_distribution(jobs_df)
-        logger.debug(f"獲取到 {len(industry_dist) if not industry_dist.empty else 0} 條產業分佈數據")
+        logger.debug(
+            f"獲取到 {len(industry_dist) if not industry_dist.empty else 0} 條產業分佈數據"
+        )
         return industry_dist
 
     def analyze_industry_trends(self, jobs_df: pd.DataFrame) -> pd.DataFrame:
@@ -233,7 +248,9 @@ class IndustryDataProcessor:
         """
         logger.info("分析產業月度職缺趨勢")
         monthly_industry_stats = self.trend_analyzer.analyze_industry_trends(jobs_df)
-        logger.debug(f"獲取到 {len(monthly_industry_stats) if not monthly_industry_stats.empty else 0} 條產業趨勢數據")
+        logger.debug(
+            f"獲取到 {len(monthly_industry_stats) if not monthly_industry_stats.empty else 0} 條產業趨勢數據"
+        )
         return monthly_industry_stats
 
     def has_required_columns(self, jobs_df: pd.DataFrame) -> Dict[str, bool]:
@@ -247,8 +264,8 @@ class IndustryDataProcessor:
             包含列檢查結果的字典
         """
         return {
-            'industry': INDUSTRY_COLUMN in jobs_df.columns,
-            'date': DATE_COLUMN in jobs_df.columns
+            "industry": INDUSTRY_COLUMN in jobs_df.columns,
+            "date": DATE_COLUMN in jobs_df.columns,
         }
 
 
@@ -289,7 +306,11 @@ class IndustryTrendsPageRenderer:
         Args:
             column_type: 列類型 ('industry' 或 'date')
         """
-        message = "職缺數據中沒有產業類別信息" if column_type == 'industry' else "職缺數據中沒有日期信息，無法分析產業趨勢"
+        message = (
+            "職缺數據中沒有產業類別信息"
+            if column_type == "industry"
+            else "職缺數據中沒有日期信息，無法分析產業趨勢"
+        )
         st.info(message)
 
     def render_analysis_error(self, error_message: str):
@@ -309,7 +330,11 @@ class IndustryTrendsPageRenderer:
         Args:
             analysis_type: 分析類型 ('distribution' 或 'trends')
         """
-        message = "無法分析產業分佈，可能是數據不足" if analysis_type == 'distribution' else "無法分析產業趨勢，可能是數據不足"
+        message = (
+            "無法分析產業分佈，可能是數據不足"
+            if analysis_type == "distribution"
+            else "無法分析產業趨勢，可能是數據不足"
+        )
         st.info(message)
 
     def render_industry_distribution(self, industry_dist: pd.DataFrame):
@@ -353,7 +378,14 @@ class IndustryTrendsPage:
         self.data_processor = IndustryDataProcessor(job_data_analyzer, trend_analyzer)
         self.renderer = IndustryTrendsPageRenderer()
 
-    def show(self, keywords=None, city=None, district=None, limit=DEFAULT_JOB_LIMIT, months=None):
+    def show(
+        self,
+        keywords=None,
+        city=None,
+        district=None,
+        limit=DEFAULT_JOB_LIMIT,
+        months=None,
+    ):
         """
         顯示產業職缺分佈與趨勢頁面
 
@@ -374,7 +406,9 @@ class IndustryTrendsPage:
 
         try:
             # 載入數據
-            jobs_df = self.data_processor.load_job_data(keywords, city, district, limit, months)
+            jobs_df = self.data_processor.load_job_data(
+                keywords, city, district, limit, months
+            )
             if jobs_df is None:
                 self.renderer.render_no_data_warning()
                 return
@@ -390,10 +424,14 @@ class IndustryTrendsPage:
 
         except Exception as e:
             # 記錄錯誤信息
-            logger.error(f"顯示產業職缺分佈與趨勢頁面時發生錯誤: {str(e)}", exc_info=True)
+            logger.error(
+                f"顯示產業職缺分佈與趨勢頁面時發生錯誤: {str(e)}", exc_info=True
+            )
             self.renderer.render_analysis_error(str(e))
 
-    def _process_industry_distribution(self, jobs_df: pd.DataFrame, columns_check: Dict[str, bool]):
+    def _process_industry_distribution(
+        self, jobs_df: pd.DataFrame, columns_check: Dict[str, bool]
+    ):
         """
         處理產業分佈分析和渲染
 
@@ -401,9 +439,9 @@ class IndustryTrendsPage:
             jobs_df: 職缺數據DataFrame
             columns_check: 列檢查結果
         """
-        if not columns_check['industry']:
+        if not columns_check["industry"]:
             logger.warning("職缺數據中沒有產業類別信息")
-            self.renderer.render_missing_column_info('industry')
+            self.renderer.render_missing_column_info("industry")
             return
 
         # 分析產業分佈
@@ -411,7 +449,7 @@ class IndustryTrendsPage:
 
         if industry_dist.empty:
             logger.warning("無法分析產業分佈，可能是數據不足")
-            self.renderer.render_empty_analysis_info('distribution')
+            self.renderer.render_empty_analysis_info("distribution")
             return
 
         # 渲染產業分佈
@@ -420,7 +458,9 @@ class IndustryTrendsPage:
         # 處理產業趨勢
         self._process_industry_trends(jobs_df, columns_check)
 
-    def _process_industry_trends(self, jobs_df: pd.DataFrame, columns_check: Dict[str, bool]):
+    def _process_industry_trends(
+        self, jobs_df: pd.DataFrame, columns_check: Dict[str, bool]
+    ):
         """
         處理產業趨勢分析和渲染
 
@@ -428,9 +468,9 @@ class IndustryTrendsPage:
             jobs_df: 職缺數據DataFrame
             columns_check: 列檢查結果
         """
-        if not columns_check['date']:
+        if not columns_check["date"]:
             logger.warning("職缺數據中沒有日期信息")
-            self.renderer.render_missing_column_info('date')
+            self.renderer.render_missing_column_info("date")
             return
 
         # 分析產業趨勢
@@ -438,14 +478,22 @@ class IndustryTrendsPage:
 
         if monthly_industry_stats.empty:
             logger.warning("無法分析產業趨勢，可能是數據不足")
-            self.renderer.render_empty_analysis_info('trends')
+            self.renderer.render_empty_analysis_info("trends")
             return
 
         # 渲染產業趨勢
         self.renderer.render_industry_trends(monthly_industry_stats)
 
 
-def show_industry_trends_page(job_data_analyzer, trend_analyzer, keywords=None, city=None, district=None, limit=DEFAULT_JOB_LIMIT, months=None):
+def show_industry_trends_page(
+    job_data_analyzer,
+    trend_analyzer,
+    keywords=None,
+    city=None,
+    district=None,
+    limit=DEFAULT_JOB_LIMIT,
+    months=None,
+):
     """
     顯示產業職缺分佈與趨勢頁面，分析不同產業的職缺分佈和變化趨勢。
 

@@ -56,3 +56,12 @@ dev:
 
 stage:
    echo 1
+
+# 代码格式化检查
+format-check:
+	black --check .
+
+# 自动格式化代码
+format:
+	black .
+

@@ -48,7 +48,7 @@ st.set_page_config(
     page_title=APP_TITLE,
     page_icon=APP_ICON,
     layout=APP_LAYOUT,
-    initial_sidebar_state=INITIAL_SIDEBAR_STATE
+    initial_sidebar_state=INITIAL_SIDEBAR_STATE,
 )
 
 
@@ -90,8 +90,6 @@ def initialize_analyzers() -> Tuple[JobDataAnalyzer, TrendAnalyzer]:
     return job_data_analyzer, trend_analyzer
 
 
-
-
 def handle_page_navigation(
     page: str,
     job_data_analyzer: JobDataAnalyzer,
@@ -100,7 +98,7 @@ def handle_page_navigation(
     city: Optional[str],
     district: Optional[str],
     limit: Union[str, int],
-    months: Optional[int]
+    months: Optional[int],
 ) -> None:
     """
     根據選擇的頁面顯示相應的內容。
@@ -132,12 +130,14 @@ def handle_page_navigation(
         ),
         "薪資與地區分析": lambda: show_salary_location_page(
             job_data_analyzer, keywords, city, district, limit, months
-        )
+        ),
     }
 
     # 記錄用戶選擇的頁面
     logger.info(f"用戶選擇頁面: {page}")
-    logger.debug(f"頁面參數 - 關鍵詞: {keywords}, 城市: {city}, 地區: {district}, 限制: {limit}, 月份: {months}")
+    logger.debug(
+        f"頁面參數 - 關鍵詞: {keywords}, 城市: {city}, 地區: {district}, 限制: {limit}, 月份: {months}"
+    )
 
     # 調用對應的頁面處理函數
     if page in page_handlers:
@@ -154,7 +154,6 @@ def main():
     """
     start_time = time.time()
     logger.info("啟動104職缺市場洞察平台應用程序")
-
 
     try:
         # 初始化分析器 (Model)
@@ -176,8 +175,14 @@ def main():
 
         # 根據選擇的頁面顯示相應的內容 (Controller)
         handle_page_navigation(
-            page, job_data_analyzer, trend_analyzer,
-            keywords, city, district, limit, months
+            page,
+            job_data_analyzer,
+            trend_analyzer,
+            keywords,
+            city,
+            district,
+            limit,
+            months,
         )
 
         # 創建頁腳 (View)

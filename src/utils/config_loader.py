@@ -14,6 +14,7 @@ from typing import Dict, Any, Optional, Union
 
 from config.settings import logger
 
+
 class ConfigLoader:
     """
     A class for loading and managing configuration settings.
@@ -61,12 +62,14 @@ class ConfigLoader:
         if config_path.exists():
             try:
                 # Determine file type by extension
-                if filename.endswith('.py'):
+                if filename.endswith(".py"):
                     self.config = self._load_from_python_module(config_path)
-                elif filename.endswith('.yaml') or filename.endswith('.yml'):
+                elif filename.endswith(".yaml") or filename.endswith(".yml"):
                     self.config = self._load_from_yaml(config_path)
                 else:
-                    logger.warning(f"Unsupported file type for {config_path}, trying to load as YAML")
+                    logger.warning(
+                        f"Unsupported file type for {config_path}, trying to load as YAML"
+                    )
                     self.config = self._load_from_yaml(config_path)
 
                 logger.info(f"Loaded configuration from {config_path}")
@@ -74,7 +77,9 @@ class ConfigLoader:
                 logger.error(f"Error loading configuration from {config_path}: {e}")
                 self.config = {}
         else:
-            logger.warning(f"Configuration file {config_path} not found, using empty configuration")
+            logger.warning(
+                f"Configuration file {config_path} not found, using empty configuration"
+            )
             self.config = {}
 
         # Load environment-specific configuration if available
@@ -84,18 +89,22 @@ class ConfigLoader:
         if env_config_path.exists():
             try:
                 # Load environment-specific config using the same method as the main config
-                if filename.endswith('.py'):
+                if filename.endswith(".py"):
                     env_config = self._load_from_python_module(env_config_path)
-                elif filename.endswith('.yaml') or filename.endswith('.yml'):
+                elif filename.endswith(".yaml") or filename.endswith(".yml"):
                     env_config = self._load_from_yaml(env_config_path)
                 else:
                     env_config = self._load_from_yaml(env_config_path)
 
                 # Merge environment-specific configuration with default configuration
                 self._deep_update(self.config, env_config)
-                logger.info(f"Loaded environment-specific configuration from {env_config_path}")
+                logger.info(
+                    f"Loaded environment-specific configuration from {env_config_path}"
+                )
             except Exception as e:
-                logger.error(f"Error loading environment-specific configuration from {env_config_path}: {e}")
+                logger.error(
+                    f"Error loading environment-specific configuration from {env_config_path}: {e}"
+                )
 
         return self.config
 
@@ -109,7 +118,7 @@ class ConfigLoader:
         Returns:
             Dict[str, Any]: Loaded configuration.
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
 
     def _load_from_python_module(self, file_path: Path) -> Dict[str, Any]:
@@ -132,10 +141,12 @@ class ConfigLoader:
         spec.loader.exec_module(module)
 
         # Look for CONFIG variable in the module
-        if hasattr(module, 'CONFIG'):
+        if hasattr(module, "CONFIG"):
             return module.CONFIG
         else:
-            logger.warning(f"No CONFIG variable found in {file_path}, using empty configuration")
+            logger.warning(
+                f"No CONFIG variable found in {file_path}, using empty configuration"
+            )
             return {}
 
     def _deep_update(self, d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
@@ -168,7 +179,7 @@ class ConfigLoader:
             Any: Configuration value.
         """
         # Support nested keys with dot notation (e.g., "database.host")
-        keys = key.split('.')
+        keys = key.split(".")
         value = self.config
 
         for k in keys:
@@ -193,50 +204,55 @@ class ConfigLoader:
 
         if not default_config_path.exists():
             default_config = {
-                "database": {
-                    "path": "data/job_data.duckdb"
-                },
+                "database": {"path": "data/job_data.duckdb"},
                 "crawler": {
                     "output_dir": "data/raw_data",
-                    "keywords": ["Python", "Data Analyst", "Data Scientist", "Machine Learning"],
+                    "keywords": [
+                        "Python",
+                        "Data Analyst",
+                        "Data Scientist",
+                        "Machine Learning",
+                    ],
                     "max_pages": 5,
-                    "schedule": {
-                        "daily_crawl": {
-                            "hour": 1,
-                            "minute": 0
-                        }
-                    }
+                    "schedule": {"daily_crawl": {"hour": 1, "minute": 0}},
                 },
-                "analysis": {
-                    "trend_days": 90,
-                    "min_keyword_count": 10
-                },
+                "analysis": {"trend_days": 90, "min_keyword_count": 10},
                 "visualization": {
                     "theme": "streamlit",
                     "default_chart_height": 500,
                     "default_chart_width": 800,
-                    "color_palette": "default"
-                }
+                    "color_palette": "default",
+                },
             }
 
             try:
                 if file_type.lower() == "py":
                     # Create Python configuration file
-                    with open(default_config_path, 'w', encoding='utf-8') as f:
+                    with open(default_config_path, "w", encoding="utf-8") as f:
                         f.write('"""\n')
-                        f.write('104 Job Data Insight Platform Configuration\n')
+                        f.write("104 Job Data Insight Platform Configuration\n")
                         f.write('"""\n\n')
-                        f.write('# Configuration dictionary\n')
-                        f.write('CONFIG = ')
+                        f.write("# Configuration dictionary\n")
+                        f.write("CONFIG = ")
                         f.write(str(default_config).replace("'", '"'))
-                    logger.info(f"Created default Python configuration file at {default_config_path}")
+                    logger.info(
+                        f"Created default Python configuration file at {default_config_path}"
+                    )
                 else:
                     # Create YAML configuration file
-                    with open(default_config_path, 'w', encoding='utf-8') as f:
-                        yaml.dump(default_config, f, default_flow_style=False, allow_unicode=True)
-                    logger.info(f"Created default YAML configuration file at {default_config_path}")
+                    with open(default_config_path, "w", encoding="utf-8") as f:
+                        yaml.dump(
+                            default_config,
+                            f,
+                            default_flow_style=False,
+                            allow_unicode=True,
+                        )
+                    logger.info(
+                        f"Created default YAML configuration file at {default_config_path}"
+                    )
             except Exception as e:
                 logger.error(f"Error creating default configuration file: {e}")
+
 
 # Example usage
 if __name__ == "__main__":

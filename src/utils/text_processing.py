@@ -27,7 +27,7 @@ def extract_lowest_level_area_codes(json_path=None):
 
     try:
         # 讀取 area_codes.json 文件
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(json_path, "r", encoding="utf-8") as f:
             area_data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         logger.error(f"讀取 {json_path} 文件失敗: {e}")
@@ -35,8 +35,7 @@ def extract_lowest_level_area_codes(json_path=None):
 
     # 確保我們只處理台灣地區的數據
     taiwan_data = next(
-        (item for item in area_data if item.get("no") == "6001000000"),
-        None
+        (item for item in area_data if item.get("no") == "6001000000"), None
     )
 
     if not taiwan_data:
@@ -44,7 +43,7 @@ def extract_lowest_level_area_codes(json_path=None):
         return {}
 
     # 定義目標城市列表，便於維護
-    TARGET_CITIES = {'台北市', '新北市', '桃園', '新竹'}
+    TARGET_CITIES = {"台北市", "新北市", "桃園", "新竹"}
 
     area_code_to_name_map = {}
 
@@ -61,8 +60,8 @@ def extract_lowest_level_area_codes(json_path=None):
                 extract_codes(children)
             else:
                 # 如果沒有子地區，這是最下層地區
-                description = item.get('des', '')
-                area_code = item.get('no', '')
+                description = item.get("des", "")
+                area_code = item.get("no", "")
 
                 # 檢查是否包含目標城市
                 if area_code and any(city in description for city in TARGET_CITIES):
@@ -145,8 +144,8 @@ def split_city_district(address: str) -> Tuple[str, str]:
     """
     # 台灣常見的城市格式
     city_patterns = [
-        r'^(.*?[市縣])(.*?[區鄉鎮市])$',  # 針對類似"台北市大安區"的地址
-        r'^(.*?[市縣])$',                # 針對只有城市的地址
+        r"^(.*?[市縣])(.*?[區鄉鎮市])$",  # 針對類似"台北市大安區"的地址
+        r"^(.*?[市縣])$",  # 針對只有城市的地址
     ]
 
     for pattern in city_patterns:

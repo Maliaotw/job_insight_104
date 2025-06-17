@@ -111,6 +111,7 @@ INDUSTRY_NAMES = {v: k for k, v in INDUSTRY_CODES.items()}
 # 3. 枚舉類（適用於代碼的分類管理）
 #################################################
 
+
 # 地區代碼枚舉
 class AreaCode(Enum):
     TAIPEI = "6001001000"  # 台北市
@@ -123,6 +124,7 @@ class AreaCode(Enum):
     KAOHSIUNG = "6001017000"  # 高雄市
     # 其他地區可以根據需要添加
 
+
 # 職務類別代碼枚舉
 class JobCatCode(Enum):
     SOFTWARE_ENGINEER = "2007001000"  # 軟體工程師
@@ -134,6 +136,7 @@ class JobCatCode(Enum):
     AI_ENGINEER = "2007007000"  # AI工程師
     # 其他職務類別可以根據需要添加
 
+
 # 產業代碼枚舉
 class IndustryCode(Enum):
     IT = "1001000000"  # 資訊科技業
@@ -143,11 +146,15 @@ class IndustryCode(Enum):
     EDUCATION = "1005000000"  # 教育業
     # 其他產業可以根據需要添加
 
+
 #################################################
 # 4. 代碼表加載與使用
 #################################################
 
-def load_code_table(url: str, cache_filename: str, force_refresh: bool = False) -> Dict[str, Any]:
+
+def load_code_table(
+    url: str, cache_filename: str, force_refresh: bool = False
+) -> Dict[str, Any]:
     """
     從 URL 加載代碼表，並緩存到本地文件
 
@@ -174,11 +181,16 @@ def load_code_table(url: str, cache_filename: str, force_refresh: bool = False) 
     logger.info(f"從URL加載代碼表: {url}")
     try:
         print(f"准备请求: {url}")
-        response = requests.get(url, timeout=10, verify=False, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
-        })
+        response = requests.get(
+            url,
+            timeout=10,
+            verify=False,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            },
+        )
         print(f"收到响应状态码: {response.status_code}")
         response.raise_for_status()
         data = response.json()
@@ -213,6 +225,7 @@ def load_code_table(url: str, cache_filename: str, force_refresh: bool = False) 
         logger.error("無法加載代碼表，返回空數據結構")
         return {"data": []}
 
+
 def load_area_codes(force_refresh: bool = False) -> Dict[str, Any]:
     """
     加載地區代碼表
@@ -224,6 +237,7 @@ def load_area_codes(force_refresh: bool = False) -> Dict[str, Any]:
         Dict: 地區代碼表數據
     """
     return load_code_table(AREA_JSON_URL, "area_codes.json", force_refresh)
+
 
 def load_job_cat_codes(force_refresh: bool = False) -> Dict[str, Any]:
     """
@@ -237,6 +251,7 @@ def load_job_cat_codes(force_refresh: bool = False) -> Dict[str, Any]:
     """
     return load_code_table(JOB_CAT_JSON_URL, "job_cat_codes.json", force_refresh)
 
+
 def load_industry_codes(force_refresh: bool = False) -> Dict[str, Any]:
     """
     加載產業代碼表
@@ -249,7 +264,10 @@ def load_industry_codes(force_refresh: bool = False) -> Dict[str, Any]:
     """
     return load_code_table(INDUSTRY_JSON_URL, "industry_codes.json", force_refresh)
 
-def extract_codes_from_data(data: Union[Dict[str, Any], List[Dict[str, Any]]], parent_code: str = "") -> Dict[str, str]:
+
+def extract_codes_from_data(
+    data: Union[Dict[str, Any], List[Dict[str, Any]]], parent_code: str = ""
+) -> Dict[str, str]:
     """
     從API返回的數據中提取代碼和名稱
 
@@ -305,6 +323,7 @@ def extract_codes_from_data(data: Union[Dict[str, Any], List[Dict[str, Any]]], p
 
     return result
 
+
 def build_full_code_tables(force_refresh: bool = False) -> Dict[str, Dict[str, str]]:
     """
     構建完整的代碼表字典
@@ -347,17 +366,20 @@ def build_full_code_tables(force_refresh: bool = False) -> Dict[str, Dict[str, s
         return {
             "area_codes": full_area_codes,
             "job_cat_codes": full_job_cat_codes,
-            "industry_codes": full_industry_codes
+            "industry_codes": full_industry_codes,
         }
     except Exception as e:
         logger.error(f"構建完整代碼表失敗: {e}")
         return {
             "area_codes": AREA_CODES,
             "job_cat_codes": JOB_CAT_CODES,
-            "industry_codes": INDUSTRY_CODES
+            "industry_codes": INDUSTRY_CODES,
         }
 
-def get_code_name(code_type: str, code: str, use_full_table: bool = False) -> Optional[str]:
+
+def get_code_name(
+    code_type: str, code: str, use_full_table: bool = False
+) -> Optional[str]:
     """
     根據代碼類型和代碼獲取名稱
 
@@ -372,23 +394,26 @@ def get_code_name(code_type: str, code: str, use_full_table: bool = False) -> Op
     if use_full_table:
         # 使用完整代碼表查詢
         all_codes = build_full_code_tables()
-        if code_type == 'area':
+        if code_type == "area":
             return all_codes["area_codes"].get(code)
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             return all_codes["job_cat_codes"].get(code)
-        elif code_type == 'industry':
+        elif code_type == "industry":
             return all_codes["industry_codes"].get(code)
     else:
         # 使用預定義的代碼表查詢
-        if code_type == 'area':
+        if code_type == "area":
             return AREA_CODES.get(code)
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             return JOB_CAT_CODES.get(code)
-        elif code_type == 'industry':
+        elif code_type == "industry":
             return INDUSTRY_CODES.get(code)
     return None
 
-def get_code_by_name(code_type: str, name: str, use_full_table: bool = False) -> Optional[str]:
+
+def get_code_by_name(
+    code_type: str, name: str, use_full_table: bool = False
+) -> Optional[str]:
     """
     根據代碼類型和名稱獲取代碼
 
@@ -403,32 +428,35 @@ def get_code_by_name(code_type: str, name: str, use_full_table: bool = False) ->
     if use_full_table:
         # 使用完整代碼表查詢
         all_codes = build_full_code_tables()
-        if code_type == 'area':
+        if code_type == "area":
             codes_dict = all_codes["area_codes"]
             for code, code_name in codes_dict.items():
                 if code_name == name:
                     return code
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             codes_dict = all_codes["job_cat_codes"]
             for code, code_name in codes_dict.items():
                 if code_name == name:
                     return code
-        elif code_type == 'industry':
+        elif code_type == "industry":
             codes_dict = all_codes["industry_codes"]
             for code, code_name in codes_dict.items():
                 if code_name == name:
                     return code
     else:
         # 使用預定義的代碼表查詢
-        if code_type == 'area':
+        if code_type == "area":
             return AREA_NAMES.get(name)
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             return JOB_CAT_NAMES.get(name)
-        elif code_type == 'industry':
+        elif code_type == "industry":
             return INDUSTRY_NAMES.get(name)
     return None
 
-def search_code_by_keyword(code_type: str, keyword: str, use_full_table: bool = True) -> Dict[str, str]:
+
+def search_code_by_keyword(
+    code_type: str, keyword: str, use_full_table: bool = True
+) -> Dict[str, str]:
     """
     根據關鍵字搜索代碼
 
@@ -445,11 +473,11 @@ def search_code_by_keyword(code_type: str, keyword: str, use_full_table: bool = 
     if use_full_table:
         # 使用完整代碼表搜索
         all_codes = build_full_code_tables()
-        if code_type == 'area':
+        if code_type == "area":
             codes_dict = all_codes["area_codes"]
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             codes_dict = all_codes["job_cat_codes"]
-        elif code_type == 'industry':
+        elif code_type == "industry":
             codes_dict = all_codes["industry_codes"]
         else:
             return result
@@ -460,11 +488,11 @@ def search_code_by_keyword(code_type: str, keyword: str, use_full_table: bool = 
                 result[code] = name
     else:
         # 使用預定義的代碼表搜索
-        if code_type == 'area':
+        if code_type == "area":
             codes_dict = AREA_CODES
-        elif code_type == 'job_cat':
+        elif code_type == "job_cat":
             codes_dict = JOB_CAT_CODES
-        elif code_type == 'industry':
+        elif code_type == "industry":
             codes_dict = INDUSTRY_CODES
         else:
             return result
@@ -476,5 +504,6 @@ def search_code_by_keyword(code_type: str, keyword: str, use_full_table: bool = 
 
     return result
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     build_full_code_tables()

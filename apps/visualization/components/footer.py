@@ -46,7 +46,7 @@ def create_social_media_links() -> None:
         "GitHub": "https://github.com/job-insight-104",
         "LinkedIn": "https://www.linkedin.com/company/job-insight-104",
         "Facebook": "https://www.facebook.com/jobinsight104",
-        "Twitter": "https://twitter.com/jobinsight104"
+        "Twitter": "https://twitter.com/jobinsight104",
     }
 
     # 創建社交媒體連結按鈕
@@ -66,7 +66,9 @@ def create_feedback_section() -> None:
     st.sidebar.markdown(f"[📝 提供反饋]({feedback_url})")
 
     # 創建問題報告連結
-    issue_url = "https://github.com/job-insight-104/issues/new"  # 替換為實際的GitHub issues URL
+    issue_url = (
+        "https://github.com/job-insight-104/issues/new"  # 替換為實際的GitHub issues URL
+    )
     st.sidebar.markdown(f"[🐞 報告問題]({issue_url})")
 
 
@@ -96,7 +98,7 @@ def create_version_info(version: str = "2.0.0") -> None:
 def create_footer(
     tech_stack: Optional[List[str]] = None,
     year: Optional[int] = None,
-    version: str = "2.0.0"
+    version: str = "2.0.0",
 ) -> None:
     """
     創建頁面頁腳。

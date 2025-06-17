@@ -22,7 +22,7 @@ from config.settings import (
     CURRENT_ENV,
     AWS_S3_BUCKET,
     AWS_S3_ACCESS_KEY_ID,
-    AWS_S3_SECRET_ACCESS_KEY
+    AWS_S3_SECRET_ACCESS_KEY,
 )
 
 
@@ -41,7 +41,7 @@ class CustomJSONEncoder(JSONEncoder):
         if isinstance(obj, pd.Timestamp):
             return obj.isoformat()
         # 處理numpy數據類型
-        if hasattr(obj, 'item'):
+        if hasattr(obj, "item"):
             return obj.item()
         # 處理其他可能的非JSON可序列化類型
         try:
@@ -101,14 +101,14 @@ class DuckDBManager:
         self.conn = duckdb.connect(self.db_path)
         logger.info(f"已連接到DuckDB數據庫: {self.db_path}")
 
-        if CURRENT_ENV != 'dev':
+        if CURRENT_ENV != "dev":
             self.check_aws_env()
 
     def check_aws_env(self):
         if AWS_S3_ACCESS_KEY_ID and AWS_S3_SECRET_ACCESS_KEY:
             # 安裝必要的擴展
             self._install_extensions()
-            self.read_from_s3_parquet(f's3://{self.bucket}/jobs.parquet', 'news_jobs')
+            self.read_from_s3_parquet(f"s3://{self.bucket}/jobs.parquet", "news_jobs")
 
     def _install_extensions(self):
         """
@@ -132,16 +132,23 @@ class DuckDBManager:
     def test_upload_s3(self):
         try:
             # 請將 your-bucket 改為你的 S3 bucket 名
-            self.conn.execute(f"""
+            self.conn.execute(
+                f"""
                         COPY (SELECT 100 AS test_col) 
                         TO 's3://{self.bucket}/duckdb_s3_test.csv' (FORMAT CSV)
-                    """)
+                    """
+            )
             logger.info("S3配置測試成功，可以正常寫入S3。")
         except Exception as e:
             logger.error(f"S3配置測試失敗: {e}")
 
-    def configure_aws_credentials(self, access_key_id: str = None, secret_access_key: str = None,
-                                  region: str = 'us-east-1', session_token: str = None):
+    def configure_aws_credentials(
+        self,
+        access_key_id: str = None,
+        secret_access_key: str = None,
+        region: str = "us-east-1",
+        session_token: str = None,
+    ):
         """
         配置AWS認證信息。
 
@@ -154,32 +161,32 @@ class DuckDBManager:
         try:
             # 如果沒有提供認證信息，嘗試從環境變數獲取
             if not access_key_id or not secret_access_key:
-                access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-                secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-                session_token = os.getenv('AWS_SESSION_TOKEN')
-                region = os.getenv('AWS_DEFAULT_REGION')
+                access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+                secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+                session_token = os.getenv("AWS_SESSION_TOKEN")
+                region = os.getenv("AWS_DEFAULT_REGION")
 
             # 設置AWS認證信息
             logger.info("配置AWS認證信息...")
             self.conn.execute(f"SET s3_region='{region}';")
             self.conn.execute(f"SET s3_access_key_id='{access_key_id}';")
             self.conn.execute(f"SET s3_secret_access_key='{secret_access_key}';")
-            logger.info(f's3 params: region={region}, access_key_id={access_key_id}, secret_access_key=***')
+            logger.info(
+                f"s3 params: region={region}, access_key_id={access_key_id}, secret_access_key=***"
+            )
 
             if session_token:
                 self.conn.execute("SET s3_session_token = ?", [session_token])
 
             logger.info("AWS認證配置完成")
 
-
-
-
         except Exception as e:
             logger.error(f"AWS認證配置失敗: {e}")
             raise
 
-    def export_to_s3_parquet(self, table_name: str, s3_path: str,
-                             filters: Dict = None, limit: int = None) -> bool:
+    def export_to_s3_parquet(
+        self, table_name: str, s3_path: str, filters: Dict = None, limit: int = None
+    ) -> bool:
         """
         將數據表導出為Parquet格式並上傳到S3。
 
@@ -193,7 +200,11 @@ class DuckDBManager:
             bool: 導出是否成功
         """
         try:
-            s3_path = f's3://{self.bucket}/{s3_path}' if not s3_path.startswith('s3://') else s3_path
+            s3_path = (
+                f"s3://{self.bucket}/{s3_path}"
+                if not s3_path.startswith("s3://")
+                else s3_path
+            )
             logger.info(f"開始將表 {table_name} 導出到 S3: {s3_path}")
 
             # 構建查詢語句
@@ -214,7 +225,7 @@ class DuckDBManager:
             copy_query = f"COPY ({query}) TO '{s3_path}' (FORMAT PARQUET)"
 
             # 執行導出
-            logger.info(f'copy_query {copy_query}')
+            logger.info(f"copy_query {copy_query}")
             if params:
                 self.conn.execute(copy_query, params)
             else:
@@ -227,8 +238,9 @@ class DuckDBManager:
             logger.error(f"導出到S3失敗: {e}", exc_info=True)
             return False
 
-    def export_to_s3_csv(self, table_name: str, s3_path: str,
-                         filters: Dict = None, limit: int = None) -> bool:
+    def export_to_s3_csv(
+        self, table_name: str, s3_path: str, filters: Dict = None, limit: int = None
+    ) -> bool:
         """
         將數據表導出為CSV格式並上傳到S3。
 
@@ -274,7 +286,9 @@ class DuckDBManager:
             logger.error(f"導出CSV到S3失敗: {e}")
             return False
 
-    def read_from_s3_parquet(self, s3_path: str, table_name: str = None) -> pd.DataFrame:
+    def read_from_s3_parquet(
+        self, s3_path: str, table_name: str = None
+    ) -> pd.DataFrame:
         """
         從S3讀取Parquet文件並返回DataFrame。
 
@@ -286,7 +300,11 @@ class DuckDBManager:
             pd.DataFrame: 讀取的數據
         """
         try:
-            s3_path = f's3://{self.bucket}/{s3_path}' if not s3_path.startswith('s3://') else s3_path
+            s3_path = (
+                f"s3://{self.bucket}/{s3_path}"
+                if not s3_path.startswith("s3://")
+                else s3_path
+            )
             logger.info(f"開始從 S3 讀取 Parquet 文件: {s3_path}")
 
             # 直接查詢S3上的Parquet文件
@@ -297,8 +315,10 @@ class DuckDBManager:
 
             # 如果指定了表名，將數據載入到表中
             if table_name:
-                self.conn.register('temp_s3_data', df)
-                self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_s3_data")
+                self.conn.register("temp_s3_data", df)
+                self.conn.execute(
+                    f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_s3_data"
+                )
                 logger.info(f"數據已載入到表 {table_name}")
 
             return df
@@ -319,7 +339,11 @@ class DuckDBManager:
             pd.DataFrame: 讀取的數據
         """
         try:
-            s3_path = f's3://{self.bucket}/{s3_path}' if not s3_path.startswith('s3://') else s3_path
+            s3_path = (
+                f"s3://{self.bucket}/{s3_path}"
+                if not s3_path.startswith("s3://")
+                else s3_path
+            )
             logger.info(f"開始從 S3 讀取 CSV 文件: {s3_path}")
 
             # 直接查詢S3上的CSV文件
@@ -330,8 +354,10 @@ class DuckDBManager:
 
             # 如果指定了表名，將數據載入到表中
             if table_name:
-                self.conn.register('temp_s3_data', df)
-                self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_s3_data")
+                self.conn.register("temp_s3_data", df)
+                self.conn.execute(
+                    f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_s3_data"
+                )
                 logger.info(f"數據已載入到表 {table_name}")
 
             return df
@@ -340,7 +366,9 @@ class DuckDBManager:
             logger.error(f"從S3讀取CSV文件失敗: {e}")
             return pd.DataFrame()
 
-    def backup_database_to_s3(self, s3_bucket: str, s3_prefix: str = "backups/") -> bool:
+    def backup_database_to_s3(
+        self, s3_bucket: str, s3_prefix: str = "backups/"
+    ) -> bool:
         """
         將整個數據庫備份到S3。
 
@@ -355,7 +383,7 @@ class DuckDBManager:
             logger.info(f"開始備份數據庫到 S3 存儲桶: {s3_bucket}")
 
             # 創建boto3客戶端
-            s3_client = boto3.client('s3')
+            s3_client = boto3.client("s3")
 
             # 生成備份文件名
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -372,8 +400,9 @@ class DuckDBManager:
             logger.error(f"數據庫備份到S3失敗: {e}")
             return False
 
-    def restore_database_from_s3(self, s3_bucket: str, s3_key: str,
-                                 local_path: str = None) -> bool:
+    def restore_database_from_s3(
+        self, s3_bucket: str, s3_key: str, local_path: str = None
+    ) -> bool:
         """
         從S3恢復數據庫備份。
 
@@ -389,7 +418,7 @@ class DuckDBManager:
             logger.info(f"開始從 S3 恢復數據庫: s3://{s3_bucket}/{s3_key}")
 
             # 創建boto3客戶端
-            s3_client = boto3.client('s3')
+            s3_client = boto3.client("s3")
 
             # 確定本地路徑
             if local_path is None:
@@ -428,14 +457,14 @@ class DuckDBManager:
             logger.info(f"列出 S3 存儲桶 {s3_bucket} 中的文件，前綴: {s3_prefix}")
 
             # 創建boto3客戶端
-            s3_client = boto3.client('s3')
+            s3_client = boto3.client("s3")
 
             # 列出對象
             response = s3_client.list_objects_v2(Bucket=s3_bucket, Prefix=s3_prefix)
 
             files = []
-            if 'Contents' in response:
-                files = [obj['Key'] for obj in response['Contents']]
+            if "Contents" in response:
+                files = [obj["Key"] for obj in response["Contents"]]
 
             logger.info(f"找到 {len(files)} 個文件")
             return files
@@ -444,7 +473,9 @@ class DuckDBManager:
             logger.error(f"列出S3文件失敗: {e}")
             return []
 
-    def get_jobs(self, filters: Dict = None, limit: int = 1000, include_inactive: bool = False) -> pd.DataFrame:
+    def get_jobs(
+        self, filters: Dict = None, limit: int = 1000, include_inactive: bool = False
+    ) -> pd.DataFrame:
         """
         從數據庫獲取職缺，可選擇性地使用過濾條件。
 
@@ -505,7 +536,7 @@ class DuckDBManager:
 
             # 3. 註冊臨時表
             logger.info("註冊臨時表 temp_jobs")
-            self.conn.register('temp_jobs', df)
+            self.conn.register("temp_jobs", df)
 
             # 準備列名稱字串,用於SQL語句
             df_columns = df.columns.tolist()
@@ -517,12 +548,14 @@ class DuckDBManager:
             # 使用標準的 INSERT 語句，如果有衝突則更新
             update_columns = []
             for col in df_columns:
-                if col != 'jobNo':  # 不更新主鍵
+                if col != "jobNo":  # 不更新主鍵
                     update_columns.append(f"{col} = excluded.{col}")
 
             update_str = ", ".join(update_columns)
 
-            self.conn.execute("CREATE OR REPLACE TABLE news_jobs AS SELECT * FROM temp_jobs")
+            self.conn.execute(
+                "CREATE OR REPLACE TABLE news_jobs AS SELECT * FROM temp_jobs"
+            )
             #
             # self.conn.execute(f"""
             #     INSERT INTO news_jobs ({columns_str})
@@ -535,7 +568,9 @@ class DuckDBManager:
             num_inserted = len(df)
 
             # 查詢資料庫中的總記錄數
-            total_records = self.conn.execute("SELECT COUNT(*) FROM news_jobs").fetchone()[0]
+            total_records = self.conn.execute(
+                "SELECT COUNT(*) FROM news_jobs"
+            ).fetchone()[0]
             logger.info(f"已將 {num_inserted} 筆職缺數據保存到資料庫")
             logger.info(f"資料庫目前共有 {total_records} 筆記錄")
 
@@ -565,12 +600,14 @@ class DuckDBManager:
         logger.info(f"數據庫路徑: {db_path}")
 
         # 檢查news_jobs表是否存在
-        table_exists = self.conn.execute("""
+        table_exists = self.conn.execute(
+            """
                                          SELECT name
                                          FROM sqlite_master
                                          WHERE type = 'table'
                                            AND name = 'news_jobs'
-                                         """).fetchone()
+                                         """
+        ).fetchone()
 
         if not table_exists:
             logger.error("數據庫中不存在news_jobs表。")
@@ -579,9 +616,11 @@ class DuckDBManager:
 
         # 獲取表結構
         logger.info("獲取news_jobs表結構...")
-        columns = self.conn.execute("""
+        columns = self.conn.execute(
+            """
                 PRAGMA table_info(news_jobs)
-            """).fetchdf()
+            """
+        ).fetchdf()
 
         logger.debug("表結構:")
         logger.debug(f"\n{columns}")
@@ -589,34 +628,39 @@ class DuckDBManager:
         # 查找可能的日期/時間欄位
         date_columns = []
         for _, row in columns.iterrows():
-            col_name = row['name']
+            col_name = row["name"]
             # 檢查欄位名稱是否包含日期相關關鍵字
-            if any(keyword in col_name.lower() for keyword in ['date', 'time', 'created', 'updated', 'timestamp']):
+            if any(
+                keyword in col_name.lower()
+                for keyword in ["date", "time", "created", "updated", "timestamp"]
+            ):
                 date_columns.append(col_name)
 
         logger.info(f"可能的日期/時間欄位: {date_columns}")
 
         # 如果找不到日期欄位，則使用jobNo作為排序依據（假設較大的jobNo表示較新的記錄）
-        sort_column = date_columns[0] if date_columns else 'jobNo'
+        sort_column = date_columns[0] if date_columns else "jobNo"
         sort_order = "DESC" if date_columns else "DESC"
 
         logger.info(f"使用 {sort_column} {sort_order} 排序")
 
         # 查詢最近50筆記錄
         logger.info("查詢最近50筆記錄...")
-        recent_jobs = self.conn.execute(f"""
+        recent_jobs = self.conn.execute(
+            f"""
             SELECT * FROM news_jobs
             ORDER BY {sort_column} {sort_order}
             LIMIT 50
-        """).fetchdf()
+        """
+        ).fetchdf()
 
         logger.info(f"獲取到 {len(recent_jobs)} 筆記錄")
 
         # 將DataFrame直接轉換為JSON字符串
-        jobs_list = recent_jobs.to_json(orient='records', force_ascii=False, indent=2)
+        jobs_list = recent_jobs.to_json(orient="records", force_ascii=False, indent=2)
 
         # 創建輸出目錄（如果不存在）
-        output_dir = BASE_DIR / 'data' / 'output'
+        output_dir = BASE_DIR / "data" / "output"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # 生成輸出文件名
@@ -624,7 +668,7 @@ class DuckDBManager:
         output_file = output_dir / f"recent_jobs_{timestamp}.json"
 
         # 將結果保存為JSON文件
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(jobs_list)
 
         logger.info(f"已將最近50筆職缺數據保存至: {output_file}")
@@ -644,7 +688,7 @@ class DuckDBManager:
 
 
 # 使用示例
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 創建DuckDB管理器實例
     duckdb_manager = DuckDBManager()
 
@@ -657,8 +701,7 @@ if __name__ == '__main__':
     # # 示例：導出數據到S3
     duckdb_manager._install_extensions()
     success = duckdb_manager.export_to_s3_parquet(
-        table_name='news_jobs',
-        s3_path='jobs.parquet'
+        table_name="news_jobs", s3_path="jobs.parquet"
     )
     #
     # 示例：從S3讀取數據

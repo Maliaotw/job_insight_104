@@ -24,7 +24,7 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1",
 ]
 
 # 默認請求頭
@@ -35,16 +35,16 @@ DEFAULT_HEADERS = {
 }
 
 # 目標城市列表
-TARGET_CITIES = {'台北市', '新北市', '桃園', '新竹'}
+TARGET_CITIES = {"台北市", "新北市", "桃園", "新竹"}
 
 # 職缺狀態常數
-JOB_STATUS_ACTIVE = 'active'
-JOB_STATUS_INACTIVE = 'inactive'
+JOB_STATUS_ACTIVE = "active"
+JOB_STATUS_INACTIVE = "inactive"
 
 # 資料庫相關常數
-MONGODB_COLLECTION_JOBS = 'jobs'
-MONGODB_COLLECTION_DAILY = 'daily'
+MONGODB_COLLECTION_JOBS = "jobs"
+MONGODB_COLLECTION_DAILY = "daily"
 
 # 檔案格式常數
-CSV_ENCODING = 'utf-8-sig'
+CSV_ENCODING = "utf-8-sig"
 JSON_INDENT = 2

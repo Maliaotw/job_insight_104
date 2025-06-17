@@ -36,12 +36,16 @@ def transfer_data(days_ago: int = 0, limit: int = 0):
         # 構建過濾條件
         filters = {}
         if days_ago > 0:
-            date_threshold = (datetime.now() - timedelta(days=days_ago)).strftime("%Y-%m-%d")
+            date_threshold = (datetime.now() - timedelta(days=days_ago)).strftime(
+                "%Y-%m-%d"
+            )
             filters["crawl_date"] = {"$gte": date_threshold}
 
         # 從 MongoDB 獲取數據
         logger.info(f"從 MongoDB 獲取數據，過濾條件: {filters}")
-        df = mongo_manager.get_jobs_dataframe(filters=filters, limit=limit if limit > 0 else 0)
+        df = mongo_manager.get_jobs_dataframe(
+            filters=filters, limit=limit if limit > 0 else 0
+        )
 
         if df.empty:
             logger.warning("沒有找到符合條件的數據")
@@ -72,9 +76,13 @@ def main():
     """主函數"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='從 MongoDB 轉移數據到 DuckDB')
-    parser.add_argument('--days', type=int, default=0, help='只轉移最近幾天的數據，0 表示所有數據')
-    parser.add_argument('--limit', type=int, default=0, help='最大轉移記錄數，0 表示不限制')
+    parser = argparse.ArgumentParser(description="從 MongoDB 轉移數據到 DuckDB")
+    parser.add_argument(
+        "--days", type=int, default=0, help="只轉移最近幾天的數據，0 表示所有數據"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=0, help="最大轉移記錄數，0 表示不限制"
+    )
 
     args = parser.parse_args()
 

@@ -12,7 +12,11 @@ from config.code_tables import CODE_TABLES_DIR
 from config.settings import BASE_DIR, logger
 from src.database.mongodb_manager import MongoDBManager
 from src.utils.http_adapter import AsyncHttpAdapter
-from src.utils.text_processing import extract_lowest_level_area_codes, split_link_field, split_city_district
+from src.utils.text_processing import (
+    extract_lowest_level_area_codes,
+    split_link_field,
+    split_city_district,
+)
 from urllib.parse import urlencode
 import itertools
 from collections import defaultdict
@@ -51,7 +55,9 @@ class Crawler:
 
     WEBSITE_BASE_URL = "https://www.104.com.tw"  # 104網站基礎URL
     SEARCH_API_URL = "https://www.104.com.tw/jobs/search/list"  # 104搜索API
-    JOB_DETAIL_API_URL = "https://www.104.com.tw/job/ajax/content/{}"  # 職缺詳情API，{}將被替換為職缺ID
+    JOB_DETAIL_API_URL = (
+        "https://www.104.com.tw/job/ajax/content/{}"  # 職缺詳情API，{}將被替換為職缺ID
+    )
 
     MONGO_MANAGER = MongoDBManager()
 
@@ -64,7 +70,7 @@ class Crawler:
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1",
     ]
 
     # 請求重試次數和延遲設定
@@ -102,17 +108,16 @@ class Crawler:
                 "Referer": "https://www.104.com.tw/jobs/search/",
                 "Accept": "application/json, text/plain, */*",
                 "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-            }
+            },
         )
 
         # 設定時間戳記，用於生成文件名
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # 在一次用高併發會獲取所有的數據
-        self.max_concurrency = 10 # 假設同時最多10個
+        self.max_concurrency = 10  # 假設同時最多10個
         self.semaphore = asyncio.Semaphore(self.max_concurrency)
         self.today = datetime.now().strftime("%Y-%m-%d")
-
 
     def _setup_output_directory(self, output_dir: Union[str, Path, None]) -> Path:
         """設定並創建輸出目錄"""
@@ -127,8 +132,16 @@ class Crawler:
 
         return directory
 
-
-    def build_url(self, keyword: str = "", page: int = 1, area: str = "", industry: str = "", job_category: str = "", experience: str = "", education: str = ""):
+    def build_url(
+        self,
+        keyword: str = "",
+        page: int = 1,
+        area: str = "",
+        industry: str = "",
+        job_category: str = "",
+        experience: str = "",
+        education: str = "",
+    ):
         """
         構建104人力銀行職缺搜索API的URL
 
@@ -161,11 +174,11 @@ class Crawler:
             "exp": experience,  # 經驗要求
             "edu": education,  # 學歷要求
             "mode": "s",  # 搜索模式
-            "jobsource": "index"  # 來源頁面
+            "jobsource": "index",  # 來源頁面
         }
         logger.debug(f"搜索參數: {params}")
         complete_url = f"{self.SEARCH_API_URL}?{urlencode(params)}"
-        logger.debug(f'完整URL={complete_url}')
+        logger.debug(f"完整URL={complete_url}")
         return complete_url
 
     async def search_jobs(self, url: str) -> Dict:
@@ -200,7 +213,9 @@ class Crawler:
         # 步驟3: 檢查響應是否包含預期的數據結構
         # 確保響應中包含"data"字段，這是API的標準格式
         if "data" not in response_data:
-            logger.warning(f"響應中未找到'data'字段，可能是API結構變更或請求被限制, URL: {url}")
+            logger.warning(
+                f"響應中未找到'data'字段，可能是API結構變更或請求被限制, URL: {url}"
+            )
             return {"error": "響應格式不正確，未找到'data'字段"}
 
         # 步驟4: 記錄重要統計信息
@@ -238,7 +253,6 @@ class Crawler:
         # 返回完整的搜索結果
         return response_data
 
-
     def get_taiwan_area_codes(self) -> Dict[str, str]:
         """
         獲取台灣地區的所有最下層地區代碼
@@ -255,11 +269,15 @@ class Crawler:
         """
         # 使用台灣地區下的所有最下層地區代碼
         area_code_map = extract_lowest_level_area_codes()
-        logger.info(f"從 area_codes.json 提取了 {len(area_code_map)} 個台灣地區下的最下層地區代碼")
+        logger.info(
+            f"從 area_codes.json 提取了 {len(area_code_map)} 個台灣地區下的最下層地區代碼"
+        )
         logger.info(area_code_map.values())
         return area_code_map
 
-    async def get_first_page(self, keyword: str, area_code: str, area_name: str) -> Dict:
+    async def get_first_page(
+        self, keyword: str, area_code: str, area_name: str
+    ) -> Dict:
         """
         獲取特定關鍵字和地區的第一頁搜索結果，並生成所有頁面的URL列表
 
@@ -288,21 +306,27 @@ class Crawler:
         # 步驟2: 檢查資料庫中是否已有今天的搜索結果
         # 使用MongoDB查詢，檢查是否已經爬取過這個關鍵字和地區的組合
         logger.debug(f"檢查資料庫中是否已有今天的搜索結果: {first_page_url}")
-        cached_result = self.MONGO_MANAGER.db.daily.find_one({'today': self.today, 'first_url': first_page_url})
+        cached_result = self.MONGO_MANAGER.db.daily.find_one(
+            {"today": self.today, "first_url": first_page_url}
+        )
         if cached_result:
             # 如果找到了記錄，記錄詳細信息
             logger.debug(f"在資料庫中找到記錄: {cached_result}")
 
             # 如果記錄狀態為"ok"，直接返回記錄，避免重複爬取
-            if cached_result['status'] == 'ok':
-                logger.info(f"使用緩存的結果，跳過爬取: 關鍵字={keyword}, 地區={area_name}")
+            if cached_result["status"] == "ok":
+                logger.info(
+                    f"使用緩存的結果，跳過爬取: 關鍵字={keyword}, 地區={area_name}"
+                )
                 return cached_result
 
         # 步驟3: 使用信號量控制併發請求數量
         # 信號量確保同時執行的請求數不超過設定的最大值
         logger.debug(f"等待信號量獲取許可: 關鍵字={keyword}, 地區={area_name}")
         async with self.semaphore:
-            logger.debug(f"獲得信號量許可，開始爬取: 關鍵字={keyword}, 地區={area_name}")
+            logger.debug(
+                f"獲得信號量許可，開始爬取: 關鍵字={keyword}, 地區={area_name}"
+            )
             try:
                 # 步驟4: 發送請求獲取第一頁搜索結果
                 logger.info(f"開始爬取第一頁: 關鍵字={keyword}, 地區={area_name}")
@@ -312,48 +336,58 @@ class Crawler:
                 first_page_response = await self.search_jobs(url=first_page_url)
 
                 # 步驟5: 從第一頁結果中獲取總頁數，然後生成所有頁面的URL
-                total_pages = first_page_response['data']['totalPage']
-                logger.info(f"搜索結果: 關鍵字={keyword}, 地區={area_name}, 總頁數={total_pages}")
+                total_pages = first_page_response["data"]["totalPage"]
+                logger.info(
+                    f"搜索結果: 關鍵字={keyword}, 地區={area_name}, 總頁數={total_pages}"
+                )
 
                 # 根據總頁數生成所有頁面的URL
                 for page_number in range(1, total_pages + 1):
-                    page_url = self.build_url(keyword=keyword, area=area_code, page=page_number)
+                    page_url = self.build_url(
+                        keyword=keyword, area=area_code, page=page_number
+                    )
                     all_page_urls.append(page_url)
-                logger.info(f"生成了 {len(all_page_urls)} 個頁面URL: 關鍵字={keyword}, 地區={area_name}")
+                logger.info(
+                    f"生成了 {len(all_page_urls)} 個頁面URL: 關鍵字={keyword}, 地區={area_name}"
+                )
 
                 # 步驟6: 將結果封裝為標準格式
                 formatted_result = {
-                    'today': self.today,
-                    'first_url': first_page_url,
-                    'crawl_url': first_page_url,
-                    'keyword': keyword,
-                    'area_code': area_code,
-                    'area_name': area_name, 
-                    'status': 'ok',
-                    'result': all_page_urls
+                    "today": self.today,
+                    "first_url": first_page_url,
+                    "crawl_url": first_page_url,
+                    "keyword": keyword,
+                    "area_code": area_code,
+                    "area_name": area_name,
+                    "status": "ok",
+                    "result": all_page_urls,
                 }
-                logger.debug(f"成功獲取第一頁並生成所有頁面URL: 關鍵字={keyword}, 地區={area_name}")
+                logger.debug(
+                    f"成功獲取第一頁並生成所有頁面URL: 關鍵字={keyword}, 地區={area_name}"
+                )
             except Exception as e:
                 # 記錄爬取失敗的錯誤
-                logger.error(f"爬取第一頁失敗: 關鍵字={keyword}, 地區={area_name}, 錯誤: {str(e)}")
+                logger.error(
+                    f"爬取第一頁失敗: 關鍵字={keyword}, 地區={area_name}, 錯誤: {str(e)}"
+                )
 
                 # 即使失敗也返回標準格式的結果字典，只是狀態為"error"
                 formatted_result = {
-                    'today': self.today,
-                    'first_url': first_page_url,
-                    'crawl_url': first_page_url,
-                    'keyword': keyword, 
-                    'area_code': area_code, 
-                    'area_name': area_name, 
-                    'status': 'error', 
-                    'result': ''
+                    "today": self.today,
+                    "first_url": first_page_url,
+                    "crawl_url": first_page_url,
+                    "keyword": keyword,
+                    "area_code": area_code,
+                    "area_name": area_name,
+                    "status": "error",
+                    "result": "",
                 }
 
             return formatted_result
 
-
-
-    async def search_keyword(self, keyword: str, area_code_map: Dict[str, str]) -> List[str]:
+    async def search_keyword(
+        self, keyword: str, area_code_map: Dict[str, str]
+    ) -> List[str]:
         """
         搜索特定關鍵字在所有地區的職缺
 
@@ -391,7 +425,9 @@ class Crawler:
 
         # 並行執行所有任務
         logger.info(f"開始並行執行關鍵字 '{keyword}' 的搜索任務")
-        first_page_results = await asyncio.gather(*first_page_tasks, return_exceptions=True)
+        first_page_results = await asyncio.gather(
+            *first_page_tasks, return_exceptions=True
+        )
         logger.info(f"關鍵字 '{keyword}' 的所有搜索任務執行完成")
 
         # 記錄詳細的結果信息（僅在調試模式下）
@@ -402,21 +438,36 @@ class Crawler:
         for result_item in first_page_results:
             # 使用upsert=True確保不會重複插入相同的記錄
             self.MONGO_MANAGER.db.daily.update_one(
-                {"today": result_item["today"],'keyword': result_item['keyword'], "first_url": result_item["first_url"], "crawl_url": result_item["crawl_url"]},
+                {
+                    "today": result_item["today"],
+                    "keyword": result_item["keyword"],
+                    "first_url": result_item["first_url"],
+                    "crawl_url": result_item["crawl_url"],
+                },
                 {"$set": result_item},
-                upsert=True
+                upsert=True,
             )
 
         # 分離成功和失敗的結果
-        successful_results = [result for result in first_page_results if result['status'] == 'ok']
-        failed_results = [result for result in first_page_results if result['status'] == 'error']
+        successful_results = [
+            result for result in first_page_results if result["status"] == "ok"
+        ]
+        failed_results = [
+            result for result in first_page_results if result["status"] == "error"
+        ]
 
         # 記錄成功和失敗的數量
-        logger.info(f"關鍵字 '{keyword}' 搜索結果: 成功 {len(successful_results)} 個, 失敗 {len(failed_results)} 個")
+        logger.info(
+            f"關鍵字 '{keyword}' 搜索結果: 成功 {len(successful_results)} 個, 失敗 {len(failed_results)} 個"
+        )
 
         # 從成功結果中提取所有頁面的URL列表
         # 使用itertools.chain.from_iterable扁平化嵌套列表
-        all_page_urls = list(itertools.chain.from_iterable([result['result'] for result in successful_results if result]))
+        all_page_urls = list(
+            itertools.chain.from_iterable(
+                [result["result"] for result in successful_results if result]
+            )
+        )
 
         # 記錄獲取到的URL數量
         logger.info(f"關鍵字 '{keyword}' 共獲取到 {len(all_page_urls)} 個頁面URL")
@@ -446,15 +497,17 @@ class Crawler:
 
         # 步驟1: 檢查資料庫中是否已有今天的搜索結果，避免重複爬取
         # 使用MongoDB查詢，檢查是否已經爬取過這個URL
-        cached_result = self.MONGO_MANAGER.db.daily.find_one({'today': self.today,'first_url':'','crawl_url': url})
+        cached_result = self.MONGO_MANAGER.db.daily.find_one(
+            {"today": self.today, "first_url": "", "crawl_url": url}
+        )
         if cached_result:
             # 如果找到了記錄，記錄詳細信息（僅在調試模式下）
-            logger.debug(f'在資料庫中找到URL的記錄: {url}')
-            logger.debug(f'記錄詳情: {cached_result}')
+            logger.debug(f"在資料庫中找到URL的記錄: {url}")
+            logger.debug(f"記錄詳情: {cached_result}")
 
             # 如果記錄狀態為"ok"，直接返回記錄，避免重複爬取
-            if cached_result['status'] == 'ok':
-                logger.info(f'使用緩存的結果，跳過爬取: {url}')
+            if cached_result["status"] == "ok":
+                logger.info(f"使用緩存的結果，跳過爬取: {url}")
                 return cached_result
 
         # 步驟2: 使用信號量控制併發請求數量
@@ -470,13 +523,13 @@ class Crawler:
 
                 # 構建標準格式的結果字典
                 formatted_response = {
-                    'today': self.today,
-                    'url': url,
-                    'first_url': '',
-                    'crawl_url': url,
-                    'keyword': keyword,
-                    'status': 'ok',
-                    'result': search_result
+                    "today": self.today,
+                    "url": url,
+                    "first_url": "",
+                    "crawl_url": url,
+                    "keyword": keyword,
+                    "status": "ok",
+                    "result": search_result,
                 }
 
                 # 記錄成功爬取
@@ -488,13 +541,13 @@ class Crawler:
 
                 # 即使失敗也返回標準格式的結果字典，只是狀態為"error"
                 return {
-                    'today': self.today,
-                    'url': url,
-                    'first_url': '',
-                    'crawl_url': url,
-                    'keyword': keyword,
-                    'status': 'error',
-                    'result': ''
+                    "today": self.today,
+                    "url": url,
+                    "first_url": "",
+                    "crawl_url": url,
+                    "keyword": keyword,
+                    "status": "error",
+                    "result": "",
                 }
 
     async def main(self, keywords: List[str]) -> List[Dict]:
@@ -551,16 +604,24 @@ class Crawler:
         logger.info("步驟5: 將結果保存到資料庫")
         for result_item in search_results:
             self.MONGO_MANAGER.db.daily.update_one(
-                {"today": result_item["today"],'keyword': result_item['keyword'], "first_url": result_item["first_url"], "crawl_url": result_item["crawl_url"]},
+                {
+                    "today": result_item["today"],
+                    "keyword": result_item["keyword"],
+                    "first_url": result_item["first_url"],
+                    "crawl_url": result_item["crawl_url"],
+                },
                 {"$set": result_item},
-                upsert=True
+                upsert=True,
             )
-
 
         # 步驟6: 分離成功和失敗的結果
         logger.info("步驟6: 分離成功和失敗的結果")
-        successful_results = [result for result in search_results if result['status'] == 'ok']
-        failed_count = sum(1 for result in search_results if result['status'] == 'error')
+        successful_results = [
+            result for result in search_results if result["status"] == "ok"
+        ]
+        failed_count = sum(
+            1 for result in search_results if result["status"] == "error"
+        )
         logger.info(f"成功: {len(successful_results)}個, 失敗: {failed_count}個")
 
         current_date = datetime.now().strftime("%Y-%m-%d")
@@ -569,12 +630,12 @@ class Crawler:
         logger.info("步驟7: 處理成功的結果，添加元數據")
         total_job_count = 0
         for result in successful_results:
-            keyword = result.get('keyword', 'unknown')
+            keyword = result.get("keyword", "unknown")
 
             # 安全地訪問嵌套字典結構
-            response_data = result.get('result', {})
-            data = response_data.get('data', {})
-            jobs_in_result = data.get('list', [])
+            response_data = result.get("result", {})
+            data = response_data.get("data", {})
+            jobs_in_result = data.get("list", [])
 
             jobs_count = len(jobs_in_result)
             total_job_count += jobs_count
@@ -584,14 +645,15 @@ class Crawler:
             # 只有當 jobs_in_result 不為空時才處理
             if jobs_in_result:
                 for job in jobs_in_result:
-                    job['crawl_date'] = current_date
-                    job['status'] = 'active'  # 預設為上架狀態
-                    job['search_keyword'] = keyword  # 添加搜索關鍵字，方便後續分析
-                    job['area_code'] = job.get('jobAddrNo', '')
-                    job['area_name'] = job.get('jobAddrNoDesc', '')
+                    job["crawl_date"] = current_date
+                    job["status"] = "active"  # 預設為上架狀態
+                    job["search_keyword"] = keyword  # 添加搜索關鍵字，方便後續分析
+                    job["area_code"] = job.get("jobAddrNo", "")
+                    job["area_name"] = job.get("jobAddrNoDesc", "")
             else:
-                logger.warning(f"關鍵字 '{keyword}' 沒有找到職缺數據，響應結構: {response_data}")
-
+                logger.warning(
+                    f"關鍵字 '{keyword}' 沒有找到職缺數據，響應結構: {response_data}"
+                )
 
         logger.info(f"共處理 {total_job_count} 個職缺")
 
@@ -599,9 +661,9 @@ class Crawler:
         logger.info("步驟8: 合併所有職缺數據")
         all_jobs = []
         for result in successful_results:
-            response_data = result.get('result', {})
-            data = response_data.get('data', {})
-            jobs_in_result = data.get('list', [])
+            response_data = result.get("result", {})
+            data = response_data.get("data", {})
+            jobs_in_result = data.get("list", [])
             all_jobs.extend(jobs_in_result)
 
         logger.info(f"合併後共有 {len(all_jobs)} 個職缺")
@@ -634,7 +696,7 @@ class Crawler:
             existing_job_dict = mongo_manager.get_existing_jobs()
 
             # 獲取當前爬取的所有職缺ID
-            current_job_ids = [job['jobNo'] for job in jobs]
+            current_job_ids = [job["jobNo"] for job in jobs]
 
             # 更新資料庫中已存在但當前未爬取到的職缺狀態為下架
             if existing_job_dict:
@@ -646,14 +708,14 @@ class Crawler:
                 # 找出需要重新激活的職缺ID
                 reactivate_job_ids = []
                 for job in jobs:
-                    if job['jobNo'] in existing_job_dict:
-                        job['last_update_date'] = today
+                    if job["jobNo"] in existing_job_dict:
+                        job["last_update_date"] = today
                         # 如果職缺之前是下架狀態，現在又出現了，將其添加到重新激活列表
-                        if existing_job_dict[job['jobNo']] == 'inactive':
-                            job['status'] = 'active'
-                            reactivate_job_ids.append(job['jobNo'])
+                        if existing_job_dict[job["jobNo"]] == "inactive":
+                            job["status"] = "active"
+                            reactivate_job_ids.append(job["jobNo"])
                     else:
-                        job['last_update_date'] = today
+                        job["last_update_date"] = today
 
                 # 重新激活之前下架的職缺
                 if reactivate_job_ids:
@@ -662,14 +724,13 @@ class Crawler:
             else:
                 # 如果資料庫中沒有現有職缺，為所有職缺添加last_update_date
                 for job in jobs:
-                    job['last_update_date'] = today
+                    job["last_update_date"] = today
 
             logger.info(f"職缺上下架狀態處理完成")
         except Exception as e:
             logger.error(f"處理職缺上下架狀態時發生錯誤: {e}")
         finally:
             mongo_manager.close()
-
 
     def _merge_job_keywords(self, jobs: List[Dict]) -> List[Dict]:
         """
@@ -689,11 +750,11 @@ class Crawler:
         # 按jobNo分組，合併相同職缺的search_keyword
         job_by_id_map = {}
         for job in jobs:
-            job_id = job['jobNo']
+            job_id = job["jobNo"]
             if job_id in job_by_id_map:
                 # 如果這個職缺已經存在，將關鍵字添加到列表中
-                existing_keywords = job_by_id_map[job_id]['search_keyword']
-                new_keyword = job['search_keyword']
+                existing_keywords = job_by_id_map[job_id]["search_keyword"]
+                new_keyword = job["search_keyword"]
 
                 # 如果existing_keywords是字符串，轉換為列表
                 if isinstance(existing_keywords, str):
@@ -704,12 +765,12 @@ class Crawler:
                     existing_keywords.append(new_keyword)
 
                 # 更新職缺的search_keyword字段
-                job_by_id_map[job_id]['search_keyword'] = existing_keywords
+                job_by_id_map[job_id]["search_keyword"] = existing_keywords
             else:
                 # 如果這是一個新職缺，將其添加到分組中
                 # 將search_keyword轉換為列表
-                if isinstance(job['search_keyword'], str):
-                    job['search_keyword'] = [job['search_keyword']]
+                if isinstance(job["search_keyword"], str):
+                    job["search_keyword"] = [job["search_keyword"]]
                 job_by_id_map[job_id] = job
 
         # 創建新的職缺列表，每個職缺只出現一次，但包含所有關鍵字
@@ -732,48 +793,61 @@ class Crawler:
         logger.info("處理link字段，分割為applyAnalyze、job和cust")
         successfully_processed_links = 0
         for job in jobs:
-            if 'link' in job and job['link']:
+            if "link" in job and job["link"]:
                 try:
                     # 檢查link是否已經是字典格式
-                    if isinstance(job['link'], dict):
+                    if isinstance(job["link"], dict):
                         # 如果已經是字典，直接提取值
-                        apply_analyze_url = job['link'].get('applyAnalyze', '')
-                        job_detail_url = job['link'].get('job', '')
-                        company_url = job['link'].get('cust', '')
+                        apply_analyze_url = job["link"].get("applyAnalyze", "")
+                        job_detail_url = job["link"].get("job", "")
+                        company_url = job["link"].get("cust", "")
 
                         # 添加協議前綴
-                        if apply_analyze_url and not apply_analyze_url.startswith(("http:", "https:")):
+                        if apply_analyze_url and not apply_analyze_url.startswith(
+                            ("http:", "https:")
+                        ):
                             apply_analyze_url = "https:" + apply_analyze_url
-                        if job_detail_url and not job_detail_url.startswith(("http:", "https:")):
+                        if job_detail_url and not job_detail_url.startswith(
+                            ("http:", "https:")
+                        ):
                             job_detail_url = "https:" + job_detail_url
-                        if company_url and not company_url.startswith(("http:", "https:")):
+                        if company_url and not company_url.startswith(
+                            ("http:", "https:")
+                        ):
                             company_url = "https:" + company_url
                     else:
                         # 如果是字符串，使用原有的分割函數
-                        apply_analyze_url, job_detail_url, company_url = split_link_field(job['link'])
+                        apply_analyze_url, job_detail_url, company_url = (
+                            split_link_field(job["link"])
+                        )
 
-                    job['applyAnalyze'] = apply_analyze_url
-                    job['job'] = job_detail_url
-                    job['cust'] = company_url
+                    job["applyAnalyze"] = apply_analyze_url
+                    job["job"] = job_detail_url
+                    job["cust"] = company_url
                     successfully_processed_links += 1
                 except Exception as e:
                     logger.error(
-                        f"處理職缺 {job.get('jobNo', 'unknown')} 的link字段時出錯: {e}, 原始字段: {job['link']}")
+                        f"處理職缺 {job.get('jobNo', 'unknown')} 的link字段時出錯: {e}, 原始字段: {job['link']}"
+                    )
         logger.info(f"成功處理 {successfully_processed_links} 筆職缺的link字段")
 
         # 處理jobAddrNoDesc字段，分割為city和district
         logger.info("處理jobAddrNoDesc字段，分割為city和district")
         successfully_processed_addresses = 0
         for job in jobs:
-            if 'jobAddrNoDesc' in job and job['jobAddrNoDesc']:
+            if "jobAddrNoDesc" in job and job["jobAddrNoDesc"]:
                 try:
-                    city, district = split_city_district(job['jobAddrNoDesc'])
-                    job['city'] = city
-                    job['district'] = district
+                    city, district = split_city_district(job["jobAddrNoDesc"])
+                    job["city"] = city
+                    job["district"] = district
                     successfully_processed_addresses += 1
                 except Exception as e:
-                    logger.error(f"處理職缺 {job.get('jobNo', 'unknown')} 的jobAddrNoDesc字段時出錯: {e}")
-        logger.info(f"成功處理 {successfully_processed_addresses} 筆職缺的jobAddrNoDesc字段")
+                    logger.error(
+                        f"處理職缺 {job.get('jobNo', 'unknown')} 的jobAddrNoDesc字段時出錯: {e}"
+                    )
+        logger.info(
+            f"成功處理 {successfully_processed_addresses} 筆職缺的jobAddrNoDesc字段"
+        )
 
     async def process_jobs_data(self, all_jobs: List[Dict]) -> None:
         """
@@ -829,7 +903,9 @@ class Crawler:
         self._save_jobs_data(deduplicated_jobs)
 
         # 記錄處理完成
-        logger.info(f"=== 職缺數據處理完成，最終處理了 {len(deduplicated_jobs)} 筆職缺 ===")
+        logger.info(
+            f"=== 職缺數據處理完成，最終處理了 {len(deduplicated_jobs)} 筆職缺 ==="
+        )
 
     def _save_jobs_data(self, jobs: List[Dict]) -> None:
         """
@@ -850,7 +926,9 @@ class Crawler:
 
         # 保存為JSON文件
         logger.info("保存職缺數據為JSON格式")
-        json_file_path = self.save_to_json(jobs, f"104_jobs_all_{current_timestamp}.json")
+        json_file_path = self.save_to_json(
+            jobs, f"104_jobs_all_{current_timestamp}.json"
+        )
         logger.info(f"JSON文件已保存至: {json_file_path}")
 
         # 保存到資料庫
@@ -893,7 +971,7 @@ class Crawler:
         jobs_dataframe = pd.DataFrame(jobs)
 
         # 保存為CSV文件，使用utf-8-sig編碼以支持中文
-        jobs_dataframe.to_csv(csv_file_path, index=False, encoding='utf-8-sig')
+        jobs_dataframe.to_csv(csv_file_path, index=False, encoding="utf-8-sig")
         logger.info(f"已將 {len(jobs)} 筆職缺數據保存至 {str(csv_file_path)}")
 
         return str(csv_file_path)
@@ -930,7 +1008,7 @@ class Crawler:
         json_file_path = self.output_dir / filename
 
         # 保存為JSON文件
-        with open(json_file_path, 'w', encoding='utf-8') as f:
+        with open(json_file_path, "w", encoding="utf-8") as f:
             # ensure_ascii=False確保中文字符正確保存，不會被轉換為Unicode轉義序列
             # indent=2設置縮進，使JSON文件更易讀
             json.dump(jobs, f, ensure_ascii=False, indent=2)
@@ -978,7 +1056,6 @@ class Crawler:
             mongo_manager.close()
             logger.debug("MongoDB 連接已關閉")
 
-
     def run(self, keywords: List[str]) -> List[Dict]:
         """
         執行爬蟲的主入口方法
@@ -1008,9 +1085,17 @@ class Crawler:
         return crawled_jobs
 
 
-
-
-
 if __name__ == "__main__":
     crawler = Crawler()
-    crawler.run(keywords=['Python','django','fastapi','flask','DevOps','SRE','K8S','JAVA'])
+    crawler.run(
+        keywords=[
+            "Python",
+            "django",
+            "fastapi",
+            "flask",
+            "DevOps",
+            "SRE",
+            "K8S",
+            "JAVA",
+        ]
+    )
