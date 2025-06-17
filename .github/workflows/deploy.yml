@@ -24,6 +24,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: job-insight-analysis
   REGION: us-east1
+  VAR: ${{ secrets._VER }}
 
 jobs:
   # 代码质量检查
@@ -99,7 +100,10 @@ jobs:
         run: |
           gcloud builds submit \
             --config cloudbuild.yaml \
-            --substitutions _SERVICE_NAME=${{ env.SERVICE_NAME }},_REGION=${{ env.REGION }},_ENVIRONMENT=${{ env.ENVIRONMENT }} \
+            --substitutions _SERVICE_NAME=${{ env.SERVICE_NAME }} \
+            --substitutions _REGION=${{ env.REGION }} \
+            --substitutions _ENVIRONMENT=${{ env.ENVIRONMENT }} \
+            --substitutions _VAR=${{ env.VAR }} \
             .
 
       - name: Get service URL

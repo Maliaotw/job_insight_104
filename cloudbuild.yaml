@@ -21,14 +21,14 @@ steps:
 
   # 推送镜像
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}::latest']
+    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest']
     id: 'push-image'
 
   # 部署到 Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [
       'run', 'deploy', '${_SERVICE_NAME}',
-      '--image', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}::latest',
+      '--image', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest',
       '--region', '${_REGION}',
       '--platform', 'managed',
       '--port', '8501',
@@ -45,38 +45,17 @@ steps:
     id: 'deploy'
 
 
-  # 部署后测试
-  - name: 'gcr.io/cloud-builders/curl'
-    args: [
-      '-f', '-s',
-      '$(gcloud run services describe ${_SERVICE_NAME} --region=${_REGION} --format="value(status.url)")/health'
-    ]
-    id: 'health-check'
-    waitFor: ['deploy']
-
-  # 清理旧版本
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # 保留最新的 5 个版本，删除其他版本
-        gcloud run revisions list --service=${_SERVICE_NAME} --region=${_REGION} --format="value(metadata.name)" --sort-by="~metadata.creationTimestamp" --limit=100 | tail -n +6 | while read revision; do
-          echo "Deleting old revision: $revision"
-          gcloud run revisions delete $revision --region=${_REGION} --quiet || true
-        done
-    id: 'cleanup'
-    waitFor: ['health-check']
 
 substitutions:
-  _SERVICE_NAME: 'job-insight-analysis'
+  _SERVICE_NAME: 'default-service'
   _REGION: 'us-east1'
   _ENVIRONMENT: 'staging'
   _MEMORY: '2Gi'
   _CPU: '1'
   _MAX_INSTANCES: '2'
   _MIN_INSTANCES: '1'
-  _VAR: "CURRENT_ENV=aws,LOGGING_LEVEL=INFO,DATABASE_PROCESSED_DATA_PATH=data/processed_job_data.duckdb,AWS_ACCESS_KEY_ID=AKIAU5LH6C46TRJNBINZ,AWS_SECRET_ACCESS_KEY=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,AWS_DEFAULT_REGION=us-east-1,AWS_S3_BUCKET=job-insight-104"
+  _VAR: ''
+
 
 options:
   logging: CLOUD_LOGGING_ONLY
