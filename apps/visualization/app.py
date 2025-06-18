@@ -20,14 +20,17 @@ from apps.visualization.analysis.job_data_analyzer import JobDataAnalyzer
 from apps.visualization.analysis.trend_analyzer import TrendAnalyzer
 from apps.visualization.components.footer import create_footer
 from apps.visualization.components.header import create_header
+
 # UI元件 (View)
 from apps.visualization.components.sidebar import create_sidebar
+
 # 頁面模組 (View)
 from apps.visualization.nav.daily_changes_page import show_daily_changes_page
 from apps.visualization.nav.dashboard_page import show_dashboard_page
 from apps.visualization.nav.hiring_efficiency_page import show_hiring_efficiency_page
 from apps.visualization.nav.industry_trends_page import show_industry_trends_page
 from apps.visualization.nav.salary_location_page import show_salary_location_page
+
 # 配置和工具
 from config.settings import logger, TAIWAN_CITY, CRAWLER_KEYWORDS
 from src.database.duckdb_manager import DuckDBManager
