@@ -71,16 +71,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up environment variables
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
-            echo "ENVIRONMENT=production" >> $GITHUB_ENV
-            echo "SERVICE_NAME=job-insight-analysis-prod" >> $GITHUB_ENV
-          else
-            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
-            echo "SERVICE_NAME=job-insight-analysis-staging" >> $GITHUB_ENV
-          fi
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -102,8 +92,7 @@ jobs:
             --config cloudbuild.yaml \
             --substitutions _SERVICE_NAME=${{ env.SERVICE_NAME }} \
             --substitutions _REGION=${{ env.REGION }} \
-            --substitutions _ENVIRONMENT=${{ env.ENVIRONMENT }} \
-            --substitutions _VAR=${{ env.VAR }} \
+            --substitutions _ENVIRONMENT=${{ env.ENVIRONMENT }}
             .
 
       - name: Get service URL
