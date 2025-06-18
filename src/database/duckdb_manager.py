@@ -16,14 +16,16 @@ import duckdb
 import pandas as pd
 
 from config.settings import (
-    AWS_S3_ACCESS_KEY_ID,
+    AWS_ACCESS_KEY_ID,
     AWS_S3_BUCKET,
-    AWS_S3_SECRET_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY,
     BASE_DIR,
     CURRENT_ENV,
     DATABASE_PROCESSED_DATA_PATH,
     logger,
 )
+
+logger.info(os.environ)
 
 
 class CustomJSONEncoder(JSONEncoder):
@@ -101,14 +103,18 @@ class DuckDBManager:
         self.conn = duckdb.connect(self.db_path)
         logger.info(f"已連接到DuckDB數據庫: {self.db_path}")
 
+        logger.info(f"CURRENT_ENV {CURRENT_ENV}")
         if CURRENT_ENV != "dev":
             self.check_aws_env()
 
     def check_aws_env(self):
-        if AWS_S3_ACCESS_KEY_ID and AWS_S3_SECRET_ACCESS_KEY:
+        if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+            logger.info(f"AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY")
             # 安裝必要的擴展
             self._install_extensions()
             self.read_from_s3_parquet(f"s3://{self.bucket}/jobs.parquet", "news_jobs")
+        else:
+            logger.info(f"AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY is None")
 
     def _install_extensions(self):
         """
