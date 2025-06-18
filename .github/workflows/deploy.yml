@@ -24,7 +24,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: job-insight-analysis
   REGION: us-east1
-  VAR: ${{ secrets._VER }}
+  VAR: ${{ secrets.GCP_RUN_VARS }}
 
 jobs:
   # 代码质量检查
