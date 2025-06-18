@@ -24,7 +24,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: job-insight-analysis
   REGION: us-east1
-  VAR: ${{ secrets.GCP_RUN_VARS }}
+  GCP_RUN_VARS: ${{ secrets.GCP_RUN_VARS }}
 
 jobs:
   # 代码质量检查
@@ -117,7 +117,7 @@ jobs:
             --min-instances 1 \
             --timeout 3600 \
             --concurrency 80 \
-            --set-env-vars ${{ env.VAR }} \
+            --set-env-vars "${{ env.GCP_RUN_VARS }}" \
             --allow-unauthenticated
             
 
