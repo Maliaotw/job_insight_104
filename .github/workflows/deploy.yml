@@ -81,9 +81,18 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+
       - name: Configure Docker for GCR
         run: |
           gcloud auth configure-docker
+
+      - name: Print selected env variables
+        run: |
+          echo "PROJECT_ID=${PROJECT_ID}"
+          echo "SERVICE_NAME=${SERVICE_NAME}"
+          echo "REGION=${REGION}"
+          echo "VAR=${VAR}"
+      
 
 
       - name: Build using Cloud Build
