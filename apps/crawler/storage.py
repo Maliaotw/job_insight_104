@@ -13,16 +13,15 @@ from typing import Dict, List, Optional, Union
 
 import pandas as pd
 
-from config.settings import logger, BASE_DIR
-from src.database.mongodb_manager import MongoDBManager
 from apps.crawler.constants import (
     JOB_STATUS_ACTIVE,
     JOB_STATUS_INACTIVE,
-    MONGODB_COLLECTION_JOBS,
     MONGODB_COLLECTION_DAILY,
     CSV_ENCODING,
     JSON_INDENT,
 )
+from config.settings import logger, BASE_DIR
+from src.database.mongodb_manager import MongoDBManager
 
 
 class JobStorage(ABC):

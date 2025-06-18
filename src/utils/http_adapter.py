@@ -12,14 +12,13 @@ HTTP 請求適配器模組
 5. 與專案日誌系統集成
 """
 
-import httpx
 import asyncio
+import logging
 import random
 import time
-from typing import Dict, List, Optional, Union, Tuple, Callable, Any, TypeVar, Generic
-from pathlib import Path
-import logging
-from functools import wraps
+from typing import Dict, List, Union, TypeVar
+
+import httpx
 
 # 導入專案日誌
 from config.settings import logger

@@ -2,11 +2,10 @@
 104 職缺數據洞察平台配置
 """
 
-from pathlib import Path
-import sys
 import logging
 import os
-from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 加載.env文件中的環境變量

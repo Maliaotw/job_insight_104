@@ -7,12 +7,12 @@
 
 import asyncio
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
-from config.settings import logger
-from apps.crawler.searcher import JobSearcher
 from apps.crawler.processor import JobDataProcessor
+from apps.crawler.searcher import JobSearcher
 from apps.crawler.storage import JobStorage, MongoDBJobStorage, FileJobStorage
+from config.settings import logger
 
 
 class CrawlerOrchestrator:

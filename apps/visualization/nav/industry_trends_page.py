@@ -11,11 +11,12 @@ Author: Job Insight 104 Team
 Version: 2.0.0
 """
 
-import streamlit as st
+from typing import Optional, Dict
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from typing import Optional, Dict, List, Any
+import streamlit as st
 
 from apps.visualization.components.filter_info import display_filter_info
 from config.settings import logger

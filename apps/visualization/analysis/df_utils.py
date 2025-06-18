@@ -3,10 +3,9 @@
 這些函數不依賴於數據庫操作，可以獨立使用於任何pandas DataFrame。
 """
 
+from typing import List
+
 import pandas as pd
-import numpy as np
-from typing import List, Dict, Optional, Union, Tuple
-from datetime import datetime, timedelta
 
 from config.settings import logger
 

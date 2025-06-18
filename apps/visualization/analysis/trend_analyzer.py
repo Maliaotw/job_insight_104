@@ -42,14 +42,8 @@ analyzer.close()
 ```
 """
 
-import pandas as pd
 import numpy as np
-from typing import List, Dict, Optional, Union, Tuple
-from pathlib import Path
-import matplotlib.pyplot as plt
-import seaborn as sns
-from datetime import datetime, timedelta
-
+import pandas as pd
 
 from config.settings import logger
 

@@ -3,12 +3,11 @@
 它集中了原本分散在視覺化應用程序中的pandas計算。
 """
 
-import pandas as pd
-import numpy as np
-from typing import List, Dict, Optional, Union, Tuple
 from datetime import datetime, timedelta
+from typing import List
 
-from src.database.duckdb_manager import DuckDBManager
+import pandas as pd
+
 from apps.visualization.analysis.df_utils import (
     prepare_jobs_analysis_df,
     extract_application_counts,
@@ -17,6 +16,7 @@ from apps.visualization.analysis.df_utils import (
     get_job_display_columns,
 )
 from config.settings import logger
+from src.database.duckdb_manager import DuckDBManager
 
 
 class JobDataAnalyzer:

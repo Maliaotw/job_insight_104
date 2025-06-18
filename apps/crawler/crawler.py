@@ -1,13 +1,13 @@
 import asyncio
+import itertools
 import json
-import re
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Dict, List, Optional, Union
+from urllib.parse import urlencode
 
 import pandas as pd
-
-from config.code_tables import CODE_TABLES_DIR
 
 from config.settings import BASE_DIR, logger
 from src.database.mongodb_manager import MongoDBManager
@@ -17,9 +17,7 @@ from src.utils.text_processing import (
     split_link_field,
     split_city_district,
 )
-from urllib.parse import urlencode
-import itertools
-from collections import defaultdict
+
 
 # 此模塊實現了一個爬蟲系統，用於從104人力銀行網站爬取職缺數據
 # 整體工作流程：

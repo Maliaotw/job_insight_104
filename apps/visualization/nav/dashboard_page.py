@@ -4,7 +4,6 @@
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any, Tuple
 
 import pandas as pd
 import plotly.express as px

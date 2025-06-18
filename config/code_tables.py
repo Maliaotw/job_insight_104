@@ -1,22 +1,9 @@
-"""
-104 職缺代碼表模組
-
-此模組提供 104 人力銀行的地區、職務類別和產業代碼的常數、字典和枚舉類，
-以及從 104 API 加載完整代碼表的功能。
-
-代碼表來源：
-- 地區代碼表：https://static.104.com.tw/category-tool/json/Area.json
-- 職務類別代碼表：https://static.104.com.tw/category-tool/json/JobCat.json
-- 產業代碼表：https://static.104.com.tw/category-tool/json/Indust.json
-"""
-
 import json
-import requests
-from pathlib import Path
+import os
 from enum import Enum
 from typing import Dict, Any, Optional, List, Union
-import os
-import threading
+
+import requests
 
 from config.settings import BASE_DIR, logger
 
@@ -106,6 +93,7 @@ INDUSTRY_CODES = {
 
 # 產業名稱與代碼對應字典（反向查詢用）
 INDUSTRY_NAMES = {v: k for k, v in INDUSTRY_CODES.items()}
+
 
 #################################################
 # 3. 枚舉類（適用於代碼的分類管理）

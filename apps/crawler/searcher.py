@@ -8,12 +8,9 @@
 import asyncio
 import itertools
 from datetime import datetime
-from typing import Dict, List, Optional, Set, Tuple, Any
+from typing import Dict, List
 from urllib.parse import urlencode
 
-from config.settings import logger
-from src.utils.http_adapter import AsyncHttpAdapter
-from src.utils.text_processing import extract_lowest_level_area_codes
 from apps.crawler.constants import (
     SEARCH_API_URL,
     MAX_RETRIES,
@@ -22,9 +19,11 @@ from apps.crawler.constants import (
     USER_AGENTS,
     DEFAULT_HEADERS,
     MAX_CONCURRENCY,
-    TARGET_CITIES,
 )
 from apps.crawler.storage import JobStorage
+from config.settings import logger
+from src.utils.http_adapter import AsyncHttpAdapter
+from src.utils.text_processing import extract_lowest_level_area_codes
 
 
 class JobSearcher:

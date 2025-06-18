@@ -6,14 +6,13 @@ This script starts the Streamlit analysis application for visualizing job data.
 """
 
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # Add the parent directory to the path so we can import from src
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.utils.config_loader import ConfigLoader
 from config.settings import logger
 
 

@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Dict, Tuple
+from typing import Tuple
 
 from config.code_tables import CODE_TABLES_DIR
 from config.settings import logger

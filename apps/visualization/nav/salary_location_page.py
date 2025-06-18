@@ -3,10 +3,11 @@ Salary and location page for the 104 Job Insight visualization app.
 This page analyzes the distribution of jobs across different salary ranges and locations.
 """
 
+from typing import Optional, Dict
+
 import pandas as pd
-import streamlit as st
 import plotly.express as px
-from typing import Optional, Dict, List, Any
+import streamlit as st
 
 from apps.visualization.components import display_filter_info
 from config.settings import logger

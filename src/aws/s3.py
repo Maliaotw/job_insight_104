@@ -1,7 +1,6 @@
-import boto3
-from botocore.exceptions import ClientError
 import os
-from config.settings import BASE_DIR, DATABASE_PROCESSED_DATA_PATH
+
+import boto3
 
 access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
 secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -16,7 +15,6 @@ s3_client = boto3.client(
     region_name=region,
 )
 
-import boto3
 from botocore.exceptions import ClientError
 
 

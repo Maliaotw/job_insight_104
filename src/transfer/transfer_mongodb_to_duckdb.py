@@ -6,9 +6,8 @@ MongoDB 到 DuckDB 數據轉移腳本
 """
 
 import sys
-from pathlib import Path
 from datetime import datetime, timedelta
-import pandas as pd
+from pathlib import Path
 
 # 添加項目根目錄到 Python 路徑
 sys.path.append(str(Path(__file__).parent.parent))

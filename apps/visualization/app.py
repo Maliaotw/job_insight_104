@@ -11,31 +11,28 @@
 版本: 2.0.0
 """
 
-import streamlit as st
-from typing import List, Optional, Dict, Any, Tuple, Union
-from functools import partial
 import time
+from typing import List, Optional, Tuple, Union
 
-# 分析器模組 (Model)
+import streamlit as st
 
 from apps.visualization.analysis.job_data_analyzer import JobDataAnalyzer
 from apps.visualization.analysis.trend_analyzer import TrendAnalyzer
-
+from apps.visualization.components.footer import create_footer
+from apps.visualization.components.header import create_header
+# UI元件 (View)
+from apps.visualization.components.sidebar import create_sidebar
 # 頁面模組 (View)
 from apps.visualization.nav.daily_changes_page import show_daily_changes_page
 from apps.visualization.nav.dashboard_page import show_dashboard_page
 from apps.visualization.nav.hiring_efficiency_page import show_hiring_efficiency_page
 from apps.visualization.nav.industry_trends_page import show_industry_trends_page
 from apps.visualization.nav.salary_location_page import show_salary_location_page
-
-# UI元件 (View)
-from apps.visualization.components.sidebar import create_sidebar
-from apps.visualization.components.header import create_header
-from apps.visualization.components.footer import create_footer
-
 # 配置和工具
 from config.settings import logger, TAIWAN_CITY, CRAWLER_KEYWORDS
 from src.database.duckdb_manager import DuckDBManager
+
+# 分析器模組 (Model)
 
 # 應用程序常量
 APP_TITLE = "104 職缺市場洞察平台"

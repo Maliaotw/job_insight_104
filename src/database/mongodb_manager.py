@@ -2,17 +2,13 @@
 MongoDB 數據管理器：用於存儲和檢索爬蟲數據
 """
 
-import json
 from datetime import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import pandas as pd
 from pymongo import MongoClient, UpdateOne
-from pymongo.collection import Collection
-from pymongo.database import Database
 
 from config.settings import (
-    BASE_DIR,
     logger,
     MONGODB_CONNECTION_STRING,
     MONGODB_DB_NAME,

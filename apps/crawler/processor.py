@@ -6,11 +6,11 @@
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional
 
+from apps.crawler.constants import JOB_STATUS_ACTIVE, JOB_STATUS_INACTIVE
 from config.settings import logger
 from src.utils.text_processing import split_link_field, split_city_district
-from apps.crawler.constants import JOB_STATUS_ACTIVE, JOB_STATUS_INACTIVE
 
 
 class JobDataProcessor:

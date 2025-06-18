@@ -9,11 +9,11 @@ import os
 from datetime import datetime
 from json import JSONEncoder
 from pathlib import Path
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union
 
+import boto3
 import duckdb
 import pandas as pd
-import boto3
 
 from config.settings import (
     BASE_DIR,

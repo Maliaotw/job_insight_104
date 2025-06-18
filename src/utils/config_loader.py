@@ -5,12 +5,13 @@ This module is responsible for loading configuration settings for the project.
 It provides functions to load settings from YAML files or Python modules and manage environment-specific configurations.
 """
 
-import os
-import yaml
 import importlib.util
+import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional
+
+import yaml
 
 from config.settings import logger
 

@@ -9,11 +9,11 @@
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
-from config.settings import logger
 from apps.crawler.orchestrator import CrawlerOrchestrator
-from apps.crawler.storage import MongoDBJobStorage, FileJobStorage
+from apps.crawler.storage import MongoDBJobStorage
+from config.settings import logger
 
 
 class CrawlerV2:
