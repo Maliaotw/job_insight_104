@@ -1,0 +1,40 @@
+# cloudbuild.yaml
+steps:
+  # 缓存构建依赖
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker pull gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest || exit 0
+    id: 'pull-cache'
+
+  # 多阶段构建
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest',
+      '.'
+    ]
+    id: 'build-image'
+    waitFor: ['pull-cache']
+
+  # 推送镜像
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest']
+    id: 'push-image'
+
+
+substitutions:
+  _SERVICE_NAME: 'job-insight-analysis'
+  _REGION: 'us-east1'
+  _ENVIRONMENT: 'staging'
+
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  substitutionOption: 'ALLOW_LOOSE'
+
+timeout: '1800s'

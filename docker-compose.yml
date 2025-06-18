@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # 排程器服務
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-scheduler
+    command: python bin/run_scheduler.py
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+
+  # 爬蟲服務
+  crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-crawler
+    command: python bin/run_crawler_v2.py
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+
+  # 分析應用服務
+  analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-insight-analysis
+    command: python bin/run_analysis_app.py
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+    depends_on:
+      - crawler
+
+  # MongoDB 資料庫 (如果需要)
+  mongodb:
+    image: mongo:7.0
+    container_name: job-insight-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password}
+    restart: unless-stopped
+    networks:
+      - job-insight-network
+
+networks:
+  job-insight-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
