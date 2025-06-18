@@ -9,7 +9,7 @@
 """
 
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
 import streamlit as st
 

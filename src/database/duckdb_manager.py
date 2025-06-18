@@ -9,20 +9,20 @@ import os
 from datetime import datetime
 from json import JSONEncoder
 from pathlib import Path
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 import boto3
 import duckdb
 import pandas as pd
 
 from config.settings import (
+    AWS_S3_ACCESS_KEY_ID,
+    AWS_S3_BUCKET,
+    AWS_S3_SECRET_ACCESS_KEY,
     BASE_DIR,
+    CURRENT_ENV,
     DATABASE_PROCESSED_DATA_PATH,
     logger,
-    CURRENT_ENV,
-    AWS_S3_BUCKET,
-    AWS_S3_ACCESS_KEY_ID,
-    AWS_S3_SECRET_ACCESS_KEY,
 )
 
 

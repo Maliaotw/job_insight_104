@@ -4,16 +4,15 @@ This page analyzes the daily changes in job listings, showing trends and detaile
 """
 
 from datetime import datetime
-from typing import Callable
-from typing import Optional, List
+from typing import Callable, List, Optional
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from apps.visualization.analysis.df_utils import (
-    prepare_jobs_analysis_df,
     get_job_display_columns,
+    prepare_jobs_analysis_df,
 )
 from apps.visualization.components import display_filter_info
 from config.settings import logger
@@ -604,8 +603,8 @@ class DailyChangesAnalyzer:
 
         # 使用prepare_jobs_analysis_df優化DataFrame
         from apps.visualization.analysis.df_utils import (
-            prepare_jobs_analysis_df,
             get_job_display_columns,
+            prepare_jobs_analysis_df,
         )
 
         optimized_df = prepare_jobs_analysis_df(jobs_df)
@@ -654,8 +653,8 @@ class DailyChangesAnalyzer:
 
         # 使用prepare_jobs_analysis_df優化DataFrame
         from apps.visualization.analysis.df_utils import (
-            prepare_jobs_analysis_df,
             get_job_display_columns,
+            prepare_jobs_analysis_df,
         )
 
         optimized_df = prepare_jobs_analysis_df(jobs_df)

@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 
 from apps.crawler.processor import JobDataProcessor
 from apps.crawler.searcher import JobSearcher
-from apps.crawler.storage import JobStorage, MongoDBJobStorage, FileJobStorage
+from apps.crawler.storage import FileJobStorage, JobStorage, MongoDBJobStorage
 from config.settings import logger
 
 

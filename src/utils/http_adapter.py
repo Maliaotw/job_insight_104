@@ -16,7 +16,7 @@ import asyncio
 import logging
 import random
 import time
-from typing import Dict, List, Union, TypeVar
+from typing import Dict, List, TypeVar, Union
 
 import httpx
 

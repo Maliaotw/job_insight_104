@@ -9,10 +9,10 @@ import pandas as pd
 from pymongo import MongoClient, UpdateOne
 
 from config.settings import (
-    logger,
+    MONGODB_AUTH_SOURCE,
     MONGODB_CONNECTION_STRING,
     MONGODB_DB_NAME,
-    MONGODB_AUTH_SOURCE,
+    logger,
 )
 
 

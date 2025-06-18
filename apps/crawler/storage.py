@@ -14,13 +14,13 @@ from typing import Dict, List, Optional, Union
 import pandas as pd
 
 from apps.crawler.constants import (
+    CSV_ENCODING,
     JOB_STATUS_ACTIVE,
     JOB_STATUS_INACTIVE,
-    MONGODB_COLLECTION_DAILY,
-    CSV_ENCODING,
     JSON_INDENT,
+    MONGODB_COLLECTION_DAILY,
 )
-from config.settings import logger, BASE_DIR
+from config.settings import BASE_DIR, logger
 from src.database.mongodb_manager import MongoDBManager
 
 

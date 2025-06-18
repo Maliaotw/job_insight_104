@@ -11,7 +11,7 @@ Author: Job Insight 104 Team
 Version: 2.0.0
 """
 
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import pandas as pd
 import plotly.express as px

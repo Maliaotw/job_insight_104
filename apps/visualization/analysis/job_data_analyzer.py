@@ -9,11 +9,11 @@ from typing import List
 import pandas as pd
 
 from apps.visualization.analysis.df_utils import (
-    prepare_jobs_analysis_df,
+    analyze_industry_distribution,
     extract_application_counts,
     extract_salary_range,
-    analyze_industry_distribution,
     get_job_display_columns,
+    prepare_jobs_analysis_df,
 )
 from config.settings import logger
 from src.database.duckdb_manager import DuckDBManager

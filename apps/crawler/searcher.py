@@ -12,13 +12,13 @@ from typing import Dict, List
 from urllib.parse import urlencode
 
 from apps.crawler.constants import (
-    SEARCH_API_URL,
-    MAX_RETRIES,
-    MIN_DELAY,
-    MAX_DELAY,
-    USER_AGENTS,
     DEFAULT_HEADERS,
     MAX_CONCURRENCY,
+    MAX_DELAY,
+    MAX_RETRIES,
+    MIN_DELAY,
+    SEARCH_API_URL,
+    USER_AGENTS,
 )
 from apps.crawler.storage import JobStorage
 from config.settings import logger

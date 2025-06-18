@@ -13,8 +13,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from config.settings import logger
-from src.database.mongodb_manager import MongoDBManager
 from src.database.duckdb_manager import DuckDBManager
+from src.database.mongodb_manager import MongoDBManager
 
 
 def transfer_data(days_ago: int = 0, limit: int = 0):

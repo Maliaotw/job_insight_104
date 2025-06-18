@@ -32,7 +32,7 @@ from apps.visualization.nav.industry_trends_page import show_industry_trends_pag
 from apps.visualization.nav.salary_location_page import show_salary_location_page
 
 # 配置和工具
-from config.settings import logger, TAIWAN_CITY, CRAWLER_KEYWORDS
+from config.settings import CRAWLER_KEYWORDS, TAIWAN_CITY, logger
 from src.database.duckdb_manager import DuckDBManager
 
 # 分析器模組 (Model)

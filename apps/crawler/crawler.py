@@ -14,10 +14,9 @@ from src.database.mongodb_manager import MongoDBManager
 from src.utils.http_adapter import AsyncHttpAdapter
 from src.utils.text_processing import (
     extract_lowest_level_area_codes,
-    split_link_field,
     split_city_district,
+    split_link_field,
 )
-
 
 # 此模塊實現了一個爬蟲系統，用於從104人力銀行網站爬取職缺數據
 # 整體工作流程：

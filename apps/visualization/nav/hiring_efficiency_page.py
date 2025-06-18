@@ -8,15 +8,15 @@ This module follows the Single Responsibility Principle by separating:
 3. Page controller (show_hiring_efficiency_page)
 """
 
-from typing import Optional, List
+from typing import List, Optional
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 from apps.visualization.analysis.df_utils import (
-    prepare_jobs_analysis_df,
     extract_application_counts,
+    prepare_jobs_analysis_df,
 )
 from apps.visualization.analysis.job_data_analyzer import JobDataAnalyzer
 from apps.visualization.components import display_filter_info

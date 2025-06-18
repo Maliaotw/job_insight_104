@@ -8,7 +8,7 @@
 版本: 1.0.0
 """
 
-from typing import List, Dict, Optional, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
 import streamlit as st
 

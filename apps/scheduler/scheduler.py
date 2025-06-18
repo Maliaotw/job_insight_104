@@ -5,9 +5,9 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 from apps.crawler.crawler_v2 import CrawlerV2
 from config.settings import (
+    CRAWLER_KEYWORDS,
     CRAWLER_SCHEDULE_DAILY_CRAWL_HOUR,
     CRAWLER_SCHEDULE_DAILY_CRAWL_MINUTE,
-    CRAWLER_KEYWORDS,
 )
 from src.database.duckdb_manager import DuckDBManager
 from src.transfer.transfer_mongodb_to_duckdb import transfer_data
