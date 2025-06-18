@@ -61,8 +61,8 @@ jobs:
           pytest tests/ -v || echo "No tests found"
 
   # 构建和部署
-  build-and-deploy:
-    name: Build and Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
     needs: quality-check
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
@@ -94,7 +94,6 @@ jobs:
           echo "VAR=${VAR}"
       
 
-
       - name: Build using Cloud Build
         run: |
           gcloud builds submit \
@@ -103,6 +102,38 @@ jobs:
             --substitutions _REGION=${{ env.REGION }} \
             --substitutions _ENVIRONMENT=${{ env.ENVIRONMENT }} \
             .
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker
+
+      - name: Print selected env variables
+        run: |
+          echo "PROJECT_ID=${PROJECT_ID}"
+          echo "SERVICE_NAME=${SERVICE_NAME}"
+          echo "REGION=${REGION}"
+          echo "VAR=${VAR}"
 
       - name: Deploy Cloud Run
         run: |
@@ -171,3 +202,4 @@ jobs:
 
               The application has been deployed and is ready for testing!`
             });
+            
