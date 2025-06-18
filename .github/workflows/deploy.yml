@@ -86,7 +86,7 @@ jobs:
           gcloud auth configure-docker
 
 
-      - name: Build and Deploy using Cloud Build
+      - name: Build using Cloud Build
         run: |
           gcloud builds submit \
             --config cloudbuild.yaml \
@@ -94,6 +94,23 @@ jobs:
             --substitutions _REGION=${{ env.REGION }} \
             --substitutions _ENVIRONMENT=${{ env.ENVIRONMENT }} \
             .
+
+      - name: Deploy Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image 'gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest' \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --port 8501 \
+            --memory 2Gi \
+            --cpu 1 \
+            --max-instances 2 \
+            --min-instances 1 \
+            --timeout 3600 \
+            --concurrency 80 \
+            --set-env-vars ${{ env.VAR }} \
+            --allow-unauthenticated
+            
 
       - name: Get service URL
         id: get-url
